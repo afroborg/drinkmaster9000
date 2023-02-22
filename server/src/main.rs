@@ -14,7 +14,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
-            .app_data(web::Data::new(Arc::new(lib::state::AppState::new())))
+            // .app_data(web::Data::new(Arc::new(lib::state::AppState::new())))
             .service(routes::drinks::drinks)
             .service(routes::drinks::drinks_by_pin)
             .service(routes::drinks::toggle_drink_pin)
