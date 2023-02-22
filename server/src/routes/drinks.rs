@@ -1,36 +1,34 @@
+use actix_web::{get, post, web, HttpResponse, Responder};
 use std::sync::Arc;
-
-use axum::{
-    extract::{ws, Path, State},
-    http::StatusCode,
-    response::IntoResponse,
-};
 
 use crate::lib::{pins::PinType, state::AppState};
 
-pub async fn drinks() -> impl IntoResponse {
+#[get("/drinks")]
+pub async fn drinks() -> impl Responder {
     "Drinks"
 }
 
-pub async fn drinks_by_pin(Path(id): Path<u8>) -> impl IntoResponse {
+#[get("/drinks/{id}")]
+pub async fn drinks_by_pin(id: web::Path<u8>) -> impl Responder {
+    let id = id.into_inner();
     format!("Drinks by id: {}", id)
 }
 
-pub async fn toggle_drink_pin(
-    Path(id): Path<u8>,
-    State(state): State<Arc<AppState>>,
-) -> impl IntoResponse {
-    let pin = state.pins.get_mut(&id).unwrap();
+#[post("/drinks/{id}")]
+pub async fn toggle_drink_pin(id: web::Path<u8>, data: web::Data<Arc<AppState>>) -> impl Responder {
+    let pin = data.pins.get_mut(&id).unwrap();
 
     match pin.pin_type {
         PinType::Input(_) => {
             // throw 400 error because pin is input
-            Err(StatusCode::BAD_REQUEST);
+            return HttpResponse::BadRequest().body("Pin is input");
         }
         PinType::Output(gpio) => {
             gpio.toggle();
         }
     }
 
-    return format!("Toggle drink by id: {}", id);
+    let id = id.into_inner();
+
+    return HttpResponse::Ok().body(format!("Toggle drink by id: {}", id));
 }
