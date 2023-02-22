@@ -1,5 +1,5 @@
 [package]
-name = "drinkmixer9000"
+name = "drinkmixer-pi"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4.3.0"
+rppal = "0.14.1"
 serde = { version = "1.0.152", features = ["derive"] }
-# rppal = "0.14.1"
