@@ -4,8 +4,9 @@ use std::sync::Arc;
 use crate::lib::{pins::PinType, state::AppState};
 
 #[get("/drinks")]
-pub async fn drinks() -> impl Responder {
-    "Drinks"
+pub async fn drinks(data: web::Data<Arc<AppState>>) -> impl Responder {
+    let state = data.pins.values().collect::<Vec<_>>();
+    HttpResponse::Ok().json(state)
 }
 
 #[get("/drinks/{id}")]

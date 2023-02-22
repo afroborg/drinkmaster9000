@@ -1,10 +1,13 @@
 use rppal::gpio::{Gpio, InputPin, OutputPin};
+use serde::Serialize;
 
+#[derive(Serialize)]
 pub enum PinType {
     Input(InputPin),
     Output(OutputPin),
 }
 
+#[derive(Serialize)]
 pub struct Pin {
     pub nbr: u8,
     pub name: String,
