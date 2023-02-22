@@ -3,12 +3,16 @@
 TARGET=aarch64-unknown-linux-gnu
 USER=pi
 
-# Build the html files
-cd client
-pnpm run build
+# --- Uncomment this to build the client ---
 
-# Go back home
-cd ..
+# # Build the html files
+# cd client
+# pnpm run build
+
+# # Go back home
+# cd ..
+
+# --- To Here ---
 
 # Build the server
 cd server

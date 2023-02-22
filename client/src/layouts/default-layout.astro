@@ -1,0 +1,32 @@
+---
+import Header from '../components/header.svelte';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro</title>
+  </head>
+  <body>
+    <Header />
+    <div class="max-w">
+      <slot />
+    </div>
+  </body>
+</html>
+
+<style lang="scss">
+  body {
+    @apply grid h-screen overflow-hidden gap-8;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+</style>
+
+<style lang="scss" is:global>
+  .max-w {
+    @apply max-w-7xl mx-auto px-8 xl:px-0 w-full;
+  }
+</style>

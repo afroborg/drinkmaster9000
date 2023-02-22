@@ -1,16 +1,19 @@
+use axum::routing::{get, post};
 use axum::Router;
 use std::env;
-
-// use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
+use std::sync::Arc;
 
-// mod lib;
+mod lib;
 mod routes;
 
 #[tokio::main]
 async fn main() {
-    let app_router = Router::new();
-    let drinks_router = axum::route("/drinks", routes::drinks::drinks);
+    let app = Router::new()
+        .with_state(Arc::new(lib::state::AppState::new()))
+        .route("/drinks", get(routes::drinks::drinks))
+        .route("/drinks/:pin", get(routes::drinks::drinks_by_pin))
+        .route("/drinks/:pin", post(routes::drinks::toggle_drink_pin));
 
     let port: u16 = env::var("PORT")
         .unwrap_or_else(|_| "3000".to_string())
@@ -21,14 +24,8 @@ async fn main() {
 
     println!("Listening on http://{}", addr);
 
-    let app = app_router.route("/api", drinks_router);
-
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
         .unwrap();
-}
-
-async fn index() -> impl IntoResponse {
-    "Hello, World!"
 }
