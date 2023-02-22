@@ -10,7 +10,7 @@ mod routes;
 #[tokio::main]
 async fn main() {
     let app = Router::new()
-        .with_state(Arc::new(lib::state::AppState::new()))
+        // .with_state(Arc::new(lib::state::AppState::new()))
         .route("/drinks", get(routes::drinks::drinks))
         .route("/drinks/:pin", get(routes::drinks::drinks_by_pin))
         .route("/drinks/:pin", post(routes::drinks::toggle_drink_pin));
