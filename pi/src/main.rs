@@ -1,23 +1,25 @@
-use std::sync::{Arc, Mutex};
+#![allow(special_module_name)]
+use std::sync::Mutex;
 
 use actix_files::Files;
 use actix_web::{web, App, HttpServer};
-use rppal::{gpio::Gpio, system::DeviceInfo};
+use rppal::system::DeviceInfo;
+
 mod lib;
 mod routes;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     println!("Running server on [::]:8080");
-    println!("Running on a {}.", DeviceInfo::new()?.model());
+    println!("Running on a {}.", DeviceInfo::new().unwrap().model());
 
-    HttpServer::new(|| {
+    let data = web::Data::new(Mutex::new(lib::state::AppState::new()));
+
+    HttpServer::new(move || {
         use routes::*;
 
         App::new()
-            .app_data(web::Data::new(Arc::new(Mutex::new(
-                lib::state::AppState::new(),
-            ))))
+            .app_data(web::Data::clone(&data))
             .service(
                 // set up methods to do with GPIO
                 web::scope("/gpio")

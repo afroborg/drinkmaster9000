@@ -14,13 +14,12 @@ pub async fn get_gpio(pin_nbr: web::Path<u8>, data: Data) -> impl Responder {
     let data = data.lock().unwrap();
     let pin = data.pins.get(&pin_nbr).unwrap();
 
-    match &pin.pin_type {
-        PinType::Input(pin) => {
-            let value = pin.read();
-            HttpResponse::Ok().body(value.to_string())
-        }
-        PinType::Output(_) => HttpResponse::BadRequest().body("Cannot read output pin"),
-    }
+    let value = match &pin.pin_type {
+        PinType::Input(pin) => pin.read().to_string(),
+        PinType::Output(pin) => pin.is_set_high().to_string(),
+    };
+
+    HttpResponse::Ok().body(value)
 }
 
 #[post("/{pin_nbr}")]

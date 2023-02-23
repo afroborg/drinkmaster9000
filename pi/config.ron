@@ -1,16 +1,16 @@
 Config(
     pins: [
         (
-            name: "Pin 18",
-            pin: 18,
+            name: "Pin 24",
+            pin: 24,
             pwm: true,
-            pin_type: "output"
+            pin_type: "input"
         ),
         (
-            name: "Pin 17",
-            pin: 17,
-            pwm: false,
-            pin_type: "input"
+            name: "Pin 25",
+            pin: 25,
+            pwm: true,
+            pin_type: "output"
         ),
     ]
 )
