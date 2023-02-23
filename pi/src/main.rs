@@ -1,17 +1,38 @@
-use actix_web::{web, App, HttpRequest, HttpServer, Responder};
+use std::sync::{Arc, Mutex};
 
-async fn greet(req: HttpRequest) -> impl Responder {
-    let name = req.match_info().get("name").unwrap_or("World");
-    format!("Hello {}!", &name)
-}
+use actix_files::Files;
+use actix_web::{web, App, HttpServer};
+use rppal::{gpio::Gpio, system::DeviceInfo};
+mod lib;
+mod routes;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("Hello World server started");
+    println!("Running server on [::]:8080");
+    println!("Running on a {}.", DeviceInfo::new()?.model());
+
     HttpServer::new(|| {
+        use routes::*;
+
         App::new()
-            .route("/", web::get().to(greet))
-            .route("/{name}", web::get().to(greet))
+            .app_data(web::Data::new(Arc::new(Mutex::new(
+                lib::state::AppState::new(),
+            ))))
+            .service(
+                // set up methods to do with GPIO
+                web::scope("/gpio")
+                    .service(gpio::list_gpio)
+                    .service(gpio::get_gpio)
+                    .service(gpio::toggle_gpio),
+            )
+            // this should always be last
+            .service(
+                Files::new("/", "/srv/drinkmixer/static")
+                    // makes sure we render the actual "index.html" file instead of a file tree
+                    .index_file("index.html")
+                    // if there is no "index.html", we render the file tree
+                    .show_files_listing(),
+            )
     })
     .bind("[::]:8080")?
     .run()

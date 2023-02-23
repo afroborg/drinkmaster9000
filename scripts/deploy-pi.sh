@@ -19,4 +19,5 @@ cd pi
 
 cross build --target ${TARGET_ARCH} --release
 rsync ${SOURCE_PATH} ${TARGET_HOST}:${TARGET_PATH}
+rsync config.ron ${TARGET_HOST}:${TARGET_PATH}
 ssh -t ${TARGET_HOST} sudo systemctl restart drinkmixer.service
