@@ -1,9 +1,8 @@
 ---
 import EditDispensers from '../components/edit-dispensers.svelte';
-import EditDrinks from '../components/edit-drinks.svelte';
 import DefaultLayout from '../layouts/default-layout.astro';
 ---
 
 <DefaultLayout>
-  <EditDispensers client:only />
+  <EditDispensers client:load />
 </DefaultLayout>
