@@ -13,11 +13,9 @@ readonly TARGET_PATH=/srv/drinkmixer
 readonly TARGET_ARCH=aarch64-unknown-linux-gnu
 readonly SOURCE_PATH=target/${TARGET_ARCH}/release/${NAME}
 
-export CROSS_CUSTOM_TOOLCHAIN=1
-
 cd pi
 
-cross build --target ${TARGET_ARCH} --release
+cargo build --target ${TARGET_ARCH} --release
 rsync ${SOURCE_PATH} ${TARGET_HOST}:${TARGET_PATH}
 rsync config.ron ${TARGET_HOST}:${TARGET_PATH}
 ssh -t ${TARGET_HOST} sudo systemctl restart drinkmixer.service

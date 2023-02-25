@@ -1,0 +1,6 @@
+{
+  "rust-analyzer.cargo.target": "aarch64-unknown-linux-gnu",
+  "rust-analyzer.server.extraEnv": {
+    "CC": "aarch64-unknown-linux-gnu-gcc"
+  }
+}

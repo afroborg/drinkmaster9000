@@ -1,29 +1,23 @@
-use super::{config::Config, pins::Pin};
+use super::config::Config;
+use crate::models::dispenser::Dispenser;
 use actix_web::web;
-use rppal::gpio::Gpio;
-use std::collections::HashMap;
-use std::sync::Mutex;
+use std::{collections::HashMap, sync::Mutex};
 
-pub type Data = web::Data<Mutex<AppState>>;
+pub type State = web::Data<Mutex<AppState>>;
 
 pub struct AppState {
-    pub pins: HashMap<u8, Pin>, // create a hashmap of pins that are referenced by their pin numbe
+    pub dispensers: HashMap<u8, Dispenser>, // create a hashmap of pins that are referenced by their pin number
 }
 
 impl AppState {
-    pub fn new() -> Self {
+    pub fn new() -> Mutex<Self> {
         let config = Config::new();
         let mut map = HashMap::new();
-        let gpio = Gpio::new().expect("Failed to initialize GPIO");
 
-        config
-            .pins
-            .iter()
-            .map(|p| Pin::from_config(p, &gpio))
-            .for_each(|pin| {
-                map.insert(pin.pin, pin);
-            });
+        config.dispensers.into_iter().for_each(|dispenser| {
+            map.insert(dispenser.position, dispenser);
+        });
 
-        Self { pins: map }
+        Mutex::new(Self { dispensers: map })
     }
 }

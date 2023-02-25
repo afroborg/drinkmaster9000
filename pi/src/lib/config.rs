@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
 
+use crate::models::dispenser::Dispenser;
+
 #[derive(Serialize)]
 pub enum PinConfigType {
     Input,
@@ -34,7 +36,8 @@ pub struct PinConfig {
 
 #[derive(Deserialize)]
 pub struct Config {
-    pub pins: Vec<PinConfig>,
+    // pub pins: Vec<PinConfig>,
+    pub dispensers: Vec<Dispenser>,
 }
 
 impl Config {

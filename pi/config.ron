@@ -1,16 +1,19 @@
 Config(
-    pins: [
-        (
-            name: "Pin 24",
-            pin: 24,
-            pwm: true,
-            pin_type: "input"
+    dispensers: [
+        Dispenser (
+            name: "Vodka",
+            position: 1,
+            pin: 24, 
         ),
-        (
-            name: "Pin 25",
+        Dispenser (
+            name: "Rum",
+            position: 2,
             pin: 25,
-            pwm: true,
-            pin_type: "output"
+        ),
+        Dispenser (
+            name: "Cola",
+            position: 3,
+            pin: 26,
         ),
     ]
 )
