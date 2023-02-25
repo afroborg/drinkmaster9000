@@ -1,4 +1,5 @@
 #![allow(special_module_name)]
+use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{web, App, HttpServer};
 use rppal::system::DeviceInfo;
@@ -16,11 +17,14 @@ async fn main() -> std::io::Result<()> {
     let data = web::Data::new(state);
 
     HttpServer::new(move || {
+        let cors = Cors::default().allowed_origin("http://localhost:3000");
+
         let files_handler = Files::new("/", "/srv/drinkmixer/static")
             .index_file("index.html")
             .show_files_listing();
 
         App::new()
+            .wrap(cors)
             .app_data(web::Data::clone(&data))
             .service(routes::dispensers::dispenser_scope())
             // this should always be last

@@ -1,7 +1,6 @@
+use crate::lib::state::State;
 use actix_web::{get, post, web, HttpResponse, Responder, Scope};
 use serde::Deserialize;
-
-use crate::lib::state::State;
 
 pub fn dispenser_scope() -> Scope {
     web::scope("/dispensers")
