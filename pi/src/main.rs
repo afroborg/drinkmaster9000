@@ -17,16 +17,21 @@ async fn main() -> std::io::Result<()> {
     let data = web::Data::new(state);
 
     HttpServer::new(move || {
-        let cors = Cors::default().allowed_origin("http://localhost:3000");
+        let cors = Cors::default()
+            .allow_any_header()
+            .allow_any_method()
+            .allow_any_origin();
 
         let files_handler = Files::new("/", "/srv/drinkmixer/static")
             .index_file("index.html")
-            .show_files_listing();
+            .prefer_utf8(true);
+
+        let api_scope = web::scope("/api").service(routes::dispensers::dispenser_scope());
 
         App::new()
             .wrap(cors)
             .app_data(web::Data::clone(&data))
-            .service(routes::dispensers::dispenser_scope())
+            .service(api_scope)
             // this should always be last
             .service(files_handler)
     })

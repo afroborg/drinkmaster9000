@@ -7,7 +7,6 @@
 
   onMount(async () => {
     const res = await fetch(`${config.api_url}/dispensers`);
-    console.log(res);
     dispensers = await res.json();
   });
 </script>
