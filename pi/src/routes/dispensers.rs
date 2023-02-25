@@ -13,7 +13,8 @@ pub fn dispenser_scope() -> Scope {
 #[get("")]
 async fn list_dispensers(state: State) -> impl Responder {
     let state = state.lock().unwrap();
-    let dispensers = state.dispensers.values().collect::<Vec<_>>();
+    let mut dispensers = state.dispensers.values().collect::<Vec<_>>();
+    dispensers.sort_by_key(|d| d.position);
 
     HttpResponse::Ok().json(dispensers)
 }

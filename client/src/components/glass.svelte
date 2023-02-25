@@ -36,8 +36,8 @@
     // linear gradient that looks like glass (in black)
     background: linear-gradient(
       to bottom,
-      theme('colors.black / 5%'),
-      theme('colors.black / 30%')
+      theme('colors.slate.600 / 5%'),
+      theme('colors.slate.600 / 30%')
     );
   }
 
