@@ -72,6 +72,6 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Copy files
-        run: rsync -r build-rs/ pi@pi:/srv/drinkmixer
+        run: rsync -r build-rs/ ${{ secrets.DESTINATION_HOST }}:/srv/drinkmixer
       - name: Restart service
-        run: ssh -t pi@pi sudo systemctl restart drinkmixer.service
+        run: ssh -t ${{ secrets.DESTINATION_HOST }} sudo systemctl restart drinkmixer.service
