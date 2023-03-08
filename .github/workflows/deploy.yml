@@ -1,0 +1,61 @@
+name: Build and deploy rust
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "pi/**"
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "pi/**"
+
+env:
+  CARGO_TERM_COLOR: always
+  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      name: Checkout repository
+
+# TODO: Fix tests
+#    - name: Run tests
+#      run: cargo test --verbose
+
+    - name: Build
+      run: cargo build --release
+      working-directory: pi
+      
+    - name: Upload artifact
+      if: ${{ success() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-rs
+        path: |
+          pi/target/aarch64-unknown-linux-gnu/release/drinkmixer-pi
+          config.ron
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-rs
+          
+      - name: Set up tailscale
+        uses: tailscale/github-action@v1
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          
+      - name: Set up SSH Key
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Copy files
+        run: rsync -r build-rs/ pi@pi:/srv/drinkmixer
+      - name: Restart service
+        run: ssh -t pi@pi sudo systemctl restart drinkmixer.service
