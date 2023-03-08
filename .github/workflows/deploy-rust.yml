@@ -25,6 +25,10 @@ jobs:
 # TODO: Fix tests
 #    - name: Run tests
 #      run: cargo test --verbose
+  
+    - name: Install target
+      run: rustup target add aarch64-unknown-linux-gnu
+      working-directory: pi
 
     - name: Build
       run: cargo build --release
@@ -40,6 +44,7 @@ jobs:
           config.ron
   deploy:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v3
