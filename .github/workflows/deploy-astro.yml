@@ -47,7 +47,7 @@ jobs:
         if: ${{ success() }}
         uses: actions/upload-artifact@v3
         with:
-          name: build-js
+          name: build-astro
           path: |
             client/dist/
 
