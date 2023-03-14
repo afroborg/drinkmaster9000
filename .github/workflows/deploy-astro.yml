@@ -24,14 +24,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
-
-      - name: Install pnpm
-        run: npm install -g pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
