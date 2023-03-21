@@ -1,6 +1,11 @@
+use std::{thread, time::Duration};
+
 use crate::{
     lib::state::State,
-    models::dispenser::{Dispenser, EditDispenser},
+    models::{
+        dispenser::{Dispenser, EditDispenser},
+        servo::Servo,
+    },
 };
 use actix_web::{get, post, web, HttpResponse, Responder, Scope};
 use serde::Deserialize;
@@ -10,7 +15,9 @@ pub fn dispenser_scope() -> Scope {
         .service(list_dispensers)
         .service(get_dispenser)
         .service(update_dispenser)
+        .service(spin)
         .service(toggle_pin)
+        .service(set_angle)
         .service(pour_amount)
 }
 
@@ -84,6 +91,51 @@ async fn toggle_pin(state: State, position: web::Path<u8>) -> impl Responder {
         }
         None => HttpResponse::NotFound().finish(),
     }
+}
+
+#[post("/{position}/spin")]
+async fn spin(state: State, position: web::Path<u8>) -> impl Responder {
+    let mut state = state.lock().unwrap();
+    let dispenser = state.dispensers.get_mut(&position.into_inner());
+
+    let Some(dispenser) = dispenser else {
+        return HttpResponse::NotFound().finish();
+    };
+
+    let mut servo = Servo::new(&mut dispenser.pin, 700, 2300, 1500);
+
+    servo.set_neutral();
+
+    thread::sleep(Duration::from_secs(2));
+
+    servo.set_max();
+
+    thread::sleep(Duration::from_secs(2));
+
+    servo.set_neutral();
+
+    thread::sleep(Duration::from_secs(2));
+
+    servo.set_min();
+
+    HttpResponse::Ok().finish()
+}
+
+#[post("/{position}/angle/{angle}")]
+async fn set_angle(state: State, params: web::Path<(u8, u64)>) -> impl Responder {
+    let mut state = state.lock().unwrap();
+    let (position, angle) = params.into_inner();
+    let dispenser = state.dispensers.get_mut(&position);
+
+    let Some(dispenser) = dispenser else {
+        return HttpResponse::NotFound().finish();
+    };
+
+    let mut servo = Servo::new(&mut dispenser.pin, 700, 2000, 1500);
+
+    servo.set_angle(angle);
+
+    HttpResponse::Ok().finish()
 }
 
 #[post("/{position}/pour")]

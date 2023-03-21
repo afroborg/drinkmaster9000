@@ -1,8 +1,11 @@
 ---
 import EditDispensers from '../components/edit-dispensers.svelte';
+import ServoAngle from '../components/servo-angle.svelte';
 import DefaultLayout from '../layouts/default-layout.astro';
 ---
 
 <DefaultLayout>
   <EditDispensers client:load />
+
+  <ServoAngle client:load />
 </DefaultLayout>

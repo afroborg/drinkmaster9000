@@ -8,9 +8,7 @@ app = FastAPI()
 
 @app.post("/")
 async def toggle():
-    state = not GPIO.input(18);
-    GPIO.output(18, state)
+    GPIO.output(32, True)
 
     return {
-        "active": state
     }

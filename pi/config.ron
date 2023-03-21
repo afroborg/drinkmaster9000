@@ -1,6 +1,11 @@
 Config(
     dispensers: [
         Dispenser (
+            name: "Servo",
+            position: 0,
+            pin: 23,
+        ),
+        Dispenser (
             name: "Vodka",
             position: 1,
             pin: 24, 
