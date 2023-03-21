@@ -1,8 +1,8 @@
 use crate::models::dispenser::Dispenser;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::fs;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Config {
     pub dispensers: Vec<Dispenser>,
 }

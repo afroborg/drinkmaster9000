@@ -37,6 +37,13 @@ pub struct DispenserResponse {
     state: bool,
 }
 
+#[derive(Deserialize)]
+pub struct EditDispenser {
+    pub name: Option<String>,
+    pub position: Option<u8>,
+    pub pin: Option<u8>,
+}
+
 impl Dispenser {
     pub fn pour(&mut self, amount: u8) {
         println!("Pouring {}ml from {}", amount, self.name);
@@ -50,5 +57,26 @@ impl Dispenser {
             pin: self.pin.pin(),
             state: self.pin.is_set_high(),
         }
+    }
+
+    pub fn edit(&mut self, edit: &EditDispenser) -> DispenserResponse {
+        if let Some(name) = &edit.name {
+            self.name = name.to_string();
+        }
+
+        if let Some(position) = &edit.position {
+            self.position = position.to_owned();
+        }
+
+        if let Some(pin) = edit.pin {
+            let gpio = gpio::Gpio::new().expect("Failed to initialize GPIO");
+
+            match gpio.get(pin) {
+                Ok(pin) => self.pin = pin.into_output_low(),
+                Err(_) => panic!("Failed to get pin {}", pin),
+            }
+        }
+
+        self.to_json()
     }
 }

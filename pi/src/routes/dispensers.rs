@@ -1,4 +1,7 @@
-use crate::{lib::state::State, models::dispenser::Dispenser};
+use crate::{
+    lib::state::State,
+    models::dispenser::{Dispenser, EditDispenser},
+};
 use actix_web::{get, post, web, HttpResponse, Responder, Scope};
 use serde::Deserialize;
 
@@ -36,12 +39,30 @@ async fn get_dispenser(state: State, position: web::Path<u8>) -> impl Responder 
 }
 
 #[post("/{position}")]
-async fn update_dispenser(state: State, position: web::Path<u8>) -> impl Responder {
-    let state = state.lock().unwrap();
-    let dispenser = state.dispensers.get(&position.into_inner());
+async fn update_dispenser(
+    state: State,
+    position: web::Path<u8>,
+    request: web::Json<EditDispenser>,
+) -> impl Responder {
+    let mut state = state.lock().unwrap();
+
+    if let Some(check_position) = request.position {
+        if state.dispensers.contains_key(&check_position) {
+            return HttpResponse::BadRequest()
+                .body(format!("Position {} is already in use", check_position));
+        }
+    }
+
+    let curr_position = &position.into_inner();
+    let dispenser = state.dispensers.get_mut(&curr_position);
 
     match dispenser {
-        Some(dispenser) => HttpResponse::Ok().json(dispenser.to_json()),
+        Some(_) => {
+            let req = request.into_inner();
+            state.edit_dispenser(*curr_position, &req);
+
+            HttpResponse::Ok().finish()
+        }
         None => HttpResponse::NotFound().finish(),
     }
 }
