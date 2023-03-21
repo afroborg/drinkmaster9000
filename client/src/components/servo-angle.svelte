@@ -25,7 +25,7 @@
   $: debounced(() => sendAngle(value), 100);
 </script>
 
-<input type="range" bind:value min="0" max="180" />
+<input type="range" bind:value min="0" max="100" />
 
 <style lang="scss">
 </style>

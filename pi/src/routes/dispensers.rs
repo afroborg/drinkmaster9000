@@ -131,7 +131,7 @@ async fn set_angle(state: State, params: web::Path<(u8, u64)>) -> impl Responder
         return HttpResponse::NotFound().finish();
     };
 
-    let mut servo = Servo::new(&mut dispenser.pin, 700, 2000, 1500);
+    let mut servo = Servo::new(&mut dispenser.pin, 700, 1800, 1500);
 
     servo.set_angle(angle);
 
