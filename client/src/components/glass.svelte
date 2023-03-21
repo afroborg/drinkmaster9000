@@ -39,12 +39,12 @@
   });
 </script>
 
-<div class="flex gap-4 items-center">
+<div class="flex gap-4 items-center relative">
   <div class="glass">
     <div class="water" style:--scale-y={percentageFilled} />
   </div>
 
-  <div>
+  <div class="absolute left-[118px]">
     <span class="font-bold">{percentageFilled} / 100%</span>
   </div>
 </div>
