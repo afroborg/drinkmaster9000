@@ -1,5 +1,5 @@
 use super::config::Config;
-use crate::models::dispenser::{Dispenser, DispenserResponse, EditDispenser};
+use crate::models::dispenser::{Dispenser, EditDispenser};
 use actix_web::web;
 use std::{collections::HashMap, sync::Mutex};
 
