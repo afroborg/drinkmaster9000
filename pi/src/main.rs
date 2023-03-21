@@ -32,6 +32,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(web::Data::clone(&data))
             .service(api_scope)
+            .service(routes::ws::ws_scope())
             // this should always be last
             .service(files_handler)
     })

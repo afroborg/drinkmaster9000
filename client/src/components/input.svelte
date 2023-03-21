@@ -1,5 +1,17 @@
 <script lang="ts">
   export let value: number | string;
+  export let max: number | string = null;
+  export let min: number | string = null;
+  export let type: 'text' | 'number' = 'text';
+
+  const handleInput: svelte.JSX.ChangeEventHandler<HTMLInputElement> = (e) => {
+    if (type === 'number') {
+      value = +e.currentTarget.value;
+      return;
+    }
+
+    value = e.currentTarget.value;
+  };
 </script>
 
 <div
@@ -9,7 +21,11 @@
   <input
     class=" h-full w-32 bg-transparent outline-none"
     class:py-3={!$$slots.suffix}
-    bind:value
+    {type}
+    {max}
+    {min}
+    {value}
+    on:input={handleInput}
   />
 
   {#if $$slots.suffix}

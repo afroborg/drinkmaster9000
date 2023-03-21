@@ -4,9 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+actix = "0.13.0"
 actix-cors = "0.6.4"
 actix-files = "0.6.2"
 actix-web = "4.3.0"
+actix-web-actors = "4.2.0"
 ron = "0.8.0"
 rppal = { version = "0.14.1", features = ["hal"] }
 serde = { version = "1.0.152", features = ["derive"] }

@@ -21,6 +21,8 @@
   const togglePour = () => {
     isPouring = !isPouring;
   };
+
+  $: console.log(dispenserAmount);
 </script>
 
 <div class="grid md:grid-cols-2 items-center gap-12">
@@ -32,7 +34,7 @@
     >
       <span> Glasets storlek</span>
 
-      <Input bind:value={glassAmount}>
+      <Input bind:value={glassAmount} max="100" min="0" type="number">
         <span slot="suffix">cl</span>
       </Input>
     </div>
@@ -44,16 +46,25 @@
         >
           <span>{dispenser.name}</span>
 
-          <Input bind:value={dispenserAmount[i]}>
+          <Input
+            bind:value={dispenserAmount[i]}
+            max="100"
+            min="0"
+            type="number"
+          >
             <span slot="suffix">%</span>
           </Input>
         </div>
       {/each}
     </div>
 
-    <Button on:click={togglePour}>
-      {isPouring ? 'Stoppa' : 'Starta'}
-    </Button>
+    <div class="flex items-center gap-3">
+      <Button on:click={togglePour}>Nollställ</Button>
+
+      <Button on:click={togglePour}>
+        {isPouring ? 'Stoppa' : 'Starta'}
+      </Button>
+    </div>
   </div>
 </div>
 
