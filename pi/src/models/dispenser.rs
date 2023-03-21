@@ -29,8 +29,26 @@ where
     serializer.serialize_u8(pin.pin())
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct DispenserResponse {
+    name: String,
+    pub position: u8,
+    pin: u8,
+    state: bool,
+}
+
 impl Dispenser {
-    pub fn pour(&self, amount: u8) {
+    pub fn pour(&mut self, amount: u8) {
         println!("Pouring {}ml from {}", amount, self.name);
+        self.pin.set_high();
+    }
+
+    pub fn to_json(&self) -> DispenserResponse {
+        DispenserResponse {
+            name: self.name.clone(),
+            position: self.position,
+            pin: self.pin.pin(),
+            state: self.pin.is_set_high(),
+        }
     }
 }
