@@ -13,7 +13,7 @@ readonly SERVER_SOURCE_PATH=target/${TARGET_ARCH}/release/${NAME}
 if [[ $1 == "frontend" ]] || [[ -z $1 ]]; then
 
     # remove the static folder on the pi
-    ssh -t ${TARGET_HOST} rm -rf ${TARGET_PATH}/static
+    ssh -t ${TARGET_HOST} rm -rf ${TARGET_PATH}/static >> /dev/null
 
     cd client
 
@@ -42,8 +42,12 @@ if [[ $1 == "pi" ]] || [[ -z $1 ]]; then
     # copy the server to the pi
     rsync ${SERVER_SOURCE_PATH} ${TARGET_HOST}:${TARGET_PATH}
 
-    # copy the config to the pi
-    rsync config.ron ${TARGET_HOST}:${TARGET_PATH}
+    # run the rsync if a second argument is given, and it is "config"
+
+    if [[ $# -ge 2 && "$2" == "config" ]]; then
+        # copy the config to the pi
+        rsync config.ron ${TARGET_HOST}:${TARGET_PATH}
+    fi
 
     # restart the service
     ssh -t ${TARGET_HOST} sudo systemctl restart drinkmixer.service

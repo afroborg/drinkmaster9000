@@ -16,3 +16,10 @@ export const getDispenser = async (): Promise<Dispenser> => {
   const { data } = await api.get('/dispenser');
   return data;
 };
+
+export const updateDispenser = async (
+  dispenser: Dispenser
+): Promise<Dispenser> => {
+  const { data } = await api.post('/dispenser', dispenser);
+  return data;
+};

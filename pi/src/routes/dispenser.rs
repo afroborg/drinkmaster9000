@@ -1,7 +1,4 @@
-use crate::{
-    lib::config::State,
-    models::dispenser::{Dispenser, UpdateDispenser},
-};
+use crate::{lib::config::State, models::dispenser::UpdateDispenser};
 use actix_web::{get, post, web, HttpResponse, Responder, Scope};
 
 pub fn dispenser_scope() -> Scope {

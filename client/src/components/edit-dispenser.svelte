@@ -1,19 +1,30 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { getDispenser } from '../lib/api';
+  import { getDispenser, updateDispenser } from '../lib/api';
   import type { Dispenser } from '../models/dispenser';
   import ServoSettings from './servo-settings.svelte';
   import DispenserDefaults from './dispenser-defaults.svelte';
+  import Button from './button.svelte';
+  import toast from 'svelte-french-toast';
 
   let dispenser: Dispenser = null;
 
   onMount(async () => {
     dispenser = await getDispenser();
   });
+
+  const handleSave = async () => {
+    try {
+      await updateDispenser(dispenser);
+      toast.success('Dispensern sparades');
+    } catch (error) {
+      toast.error('Något gick fel');
+    }
+  };
 </script>
 
 {#if dispenser}
-  <div class="space-y-8">
+  <form class="space-y-8" on:submit|preventDefault={handleSave}>
     <div class="grid md:grid-cols-3 gap-4">
       <DispenserDefaults bind:dispenser />
     </div>
@@ -34,7 +45,9 @@
         {/each}
       </div>
     </div>
-  </div>
+
+    <Button isSubmit>Spara dispenser</Button>
+  </form>
 {/if}
 
 <style lang="scss">

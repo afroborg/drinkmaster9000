@@ -1,5 +1,6 @@
 ---
 import Header from '../components/header.svelte';
+import ToasterWrapper from '../components/toaster-wrapper.svelte';
 ---
 
 <html lang="en" data-theme="night">
@@ -15,6 +16,8 @@ import Header from '../components/header.svelte';
     <div class="max-w">
       <slot />
     </div>
+
+    <ToasterWrapper client:idle />
   </body>
 </html>
 
