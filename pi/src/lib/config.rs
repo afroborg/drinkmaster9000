@@ -1,4 +1,4 @@
-use crate::models::dispenser::Dispenser;
+use crate::models::dispenser::{Dispenser, UpdateDispenser};
 use crate::models::drink::Drink;
 use actix_web::web;
 use serde::{Deserialize, Serialize};
@@ -27,9 +27,11 @@ impl Config {
         Mutex::new(Self::new())
     }
 
-    pub fn update_dispenser(&mut self, dispenser: Dispenser) {
-        self.dispenser = dispenser;
+    pub fn update_dispenser(&mut self, dispenser: UpdateDispenser) -> Result<(), String> {
+        let res = self.dispenser.update(dispenser);
         self.save_to_file();
+
+        res
     }
 
     pub fn update_drinks(&mut self, drinks: Vec<Drink>) {

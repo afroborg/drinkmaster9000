@@ -7,7 +7,7 @@
       <h1 class="text-2xl font-bold">DRINKMASTER9000</h1>
     </a>
 
-    <a href="/edit">Drycker</a>
+    <a href="/edit">Inställningar</a>
   </div>
 </header>
 

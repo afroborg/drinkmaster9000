@@ -1,5 +1,8 @@
-use crate::{lib::config::State, models::dispenser::Dispenser};
-use actix_web::{get, post, put, web, HttpResponse, Responder, Scope};
+use crate::{
+    lib::config::State,
+    models::dispenser::{Dispenser, UpdateDispenser},
+};
+use actix_web::{get, post, web, HttpResponse, Responder, Scope};
 
 pub fn dispenser_scope() -> Scope {
     web::scope("/dispenser")
@@ -19,11 +22,14 @@ async fn get_dispenser(data: State) -> impl Responder {
 }
 
 /// Edit the dispenser configuration
-/// PUT /api/dispenser
-#[put("")]
-async fn edit_dispenser(data: State, request: web::Json<Dispenser>) -> impl Responder {
+/// POST /api/dispenser
+#[post("")]
+async fn edit_dispenser(data: State, request: web::Json<UpdateDispenser>) -> impl Responder {
     let mut config = data.lock().unwrap();
-    config.update_dispenser(request.into_inner());
+
+    if let Err(err) = config.update_dispenser(request.into_inner()) {
+        return HttpResponse::BadRequest().body(err);
+    }
 
     HttpResponse::Ok().json(&config.dispenser)
 }
