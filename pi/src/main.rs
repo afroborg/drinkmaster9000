@@ -1,4 +1,6 @@
 #![allow(special_module_name)]
+
+use crate::lib::config::State;
 use actix_cors::Cors;
 use actix_files::Files;
 use actix_web::{web, App, HttpServer};
@@ -13,8 +15,11 @@ async fn main() -> std::io::Result<()> {
     println!("Running server on [::]:8080");
     println!("Running on a {}.", DeviceInfo::new().unwrap().model());
 
-    let state = lib::config::Config::new();
-    let data = web::Data::new(state);
+    std::env::set_var("RUST_LOG", "debug");
+    env_logger::init();
+
+    let config = lib::config::Config::new_mutex();
+    let state: State = web::Data::new(config);
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -26,11 +31,14 @@ async fn main() -> std::io::Result<()> {
             .index_file("index.html")
             .prefer_utf8(true);
 
-        let api_scope = web::scope("/api").service(routes::dispenser::dispenser_scope());
+        let api_scope = web::scope("/api")
+            .service(routes::drinks::drinks_scope())
+            .service(routes::dispenser::dispenser_scope())
+            .service(routes::config::config_scope());
 
         App::new()
             .wrap(cors)
-            .app_data(web::Data::clone(&data))
+            .app_data(web::Data::clone(&state))
             .service(api_scope)
             .service(routes::ws::ws_scope())
             // this should always be last

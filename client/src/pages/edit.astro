@@ -1,11 +1,25 @@
 ---
-import EditDispensers from '../components/edit-dispensers.svelte';
-import ServoAngle from '../components/servo-angle.svelte';
+import EditDispenser from '../components/edit-dispenser.svelte';
+import EditDrinks from '../components/edit-drinks.svelte';
 import DefaultLayout from '../layouts/default-layout.astro';
 ---
 
 <DefaultLayout>
-  <EditDispensers client:load />
+  <div class="space-y-8">
+    <div class="w-full">
+      <div class="pb-2">
+        <h2 class="font-bold text-xl">Drycker</h2>
+      </div>
 
-  <ServoAngle client:load />
+      <EditDrinks client:load />
+    </div>
+
+    <div class="w-full">
+      <div class="pb-2">
+        <h2 class="font-bold text-xl">Dispensern</h2>
+      </div>
+
+      <EditDispenser client:load />
+    </div>
+  </div>
 </DefaultLayout>

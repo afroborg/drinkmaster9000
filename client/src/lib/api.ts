@@ -1,16 +1,18 @@
-import { Drink } from '../models/api';
-import { MOCK_DRINKS } from '../tests/mock-data';
+import axios from 'axios';
+import config from '../config';
+import { Dispenser } from '../models/dispenser';
+import { Drink } from '../models/drink';
 
-const API_URL = 'http://localhost:3000/api';
+const api = axios.create({
+  baseURL: config.api_url,
+});
 
 export const getDrinks = async (): Promise<Drink[]> => {
-  return Promise.resolve(MOCK_DRINKS);
-  // const response = await fetch(`${API_URL}/drinks`);
-  // return response.json();
+  const { data } = await api.get('/drinks');
+  return data;
 };
 
-export const getDrink = async (name: string): Promise<Drink> => {
-  return Promise.resolve(MOCK_DRINKS[0]);
-  // const response = await fetch(`${API_URL}/drinks/${name}`);
-  // return response.json();
+export const getDispenser = async (): Promise<Dispenser> => {
+  const { data } = await api.get('/dispenser');
+  return data;
 };

@@ -23,6 +23,10 @@ impl Config {
         config
     }
 
+    pub fn new_mutex() -> Mutex<Self> {
+        Mutex::new(Self::new())
+    }
+
     pub fn update_dispenser(&mut self, dispenser: Dispenser) {
         self.dispenser = dispenser;
         self.save_to_file();
@@ -30,13 +34,6 @@ impl Config {
 
     pub fn update_drinks(&mut self, drinks: Vec<Drink>) {
         self.drinks = drinks;
-        self.save_to_file();
-    }
-
-    pub fn update(&mut self, new_config: Self) {
-        self.dispenser = new_config.dispenser;
-        self.drinks = new_config.drinks;
-
         self.save_to_file();
     }
 

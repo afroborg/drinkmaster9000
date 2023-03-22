@@ -1,28 +1,27 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import config from '../config';
-  import type { Dispenser } from '../models/dispenser';
+  import { getDrinks } from '../lib/api';
+  import type { Drink } from '../models/drink';
   import Button from './button.svelte';
   import Glass from './glass.svelte';
   import Input from './input.svelte';
 
   let isPouring: boolean = false;
 
-  let dispensers: Dispenser[] = [];
+  let drinks: Drink[] = [];
   let glassAmount: number = 33;
   let dispenserAmount: number[] = [];
 
   onMount(async () => {
-    const res = await fetch(`${config.api_url}/dispensers`);
-    dispensers = await res.json();
-    dispenserAmount = dispensers.map(() => 0);
+    const res = await getDrinks();
+    drinks = res;
+    dispenserAmount = res.map(() => 0);
   });
 
   const togglePour = () => {
     isPouring = !isPouring;
   };
-
-
 </script>
 
 <div class="grid md:grid-cols-2 items-center gap-12">
@@ -40,11 +39,11 @@
     </div>
 
     <div class="flex flex-col gap-2 mb-4">
-      {#each dispensers as dispenser, i}
+      {#each drinks as drink, i}
         <div
           class="px-4 py-2 bg-gray-200 rounded-md flex items-center gap-4 justify-between"
         >
-          <span>{dispenser.name}</span>
+          <span>{drink.name}</span>
 
           <Input
             bind:value={dispenserAmount[i]}

@@ -1,26 +1,42 @@
 Config(
-    dispenser: [
-        Servo (
-            name: "Höger",
-            pin: 23,
-            min_us: 700, 
-            max_us: 2300,
-            neutral_us: 1500,
-            start_angle: 70,
-            end_angle: 140,
-            is_reversed: false,
-        ),
-        Servo (
-            name: "Vänster",
-            pin: 24,
+    dispenser: (
+        current_index: 0,
+        angle_between: 30,
+        rotation_delay_ms: 1000,
+        pour_speed_ml_ms: 100,
+        cup_rotator: (
+            name: "Cup Rotator",
+            pin: 22,
             min_us: 700,
             max_us: 2300,
             neutral_us: 1500,
-            start_angle: 70,
-            end_angle: 140,
-            is_reversed: true,
-        )
-    ],
+            start_angle: 0,
+            end_angle: 180,
+            is_reversed: false,
+        ),
+        pusher: [
+            Servo (
+                name: "Höger",
+                pin: 23,
+                min_us: 700, 
+                max_us: 2300,
+                neutral_us: 1500,
+                start_angle: 70,
+                end_angle: 140,
+                is_reversed: false,
+            ),
+            Servo (
+                name: "Vänster",
+                pin: 24,
+                min_us: 700,
+                max_us: 2300,
+                neutral_us: 1500,
+                start_angle: 70,
+                end_angle: 140,
+                is_reversed: true,
+            )
+        ]
+    ),
     drinks: [
         Drink (
             name: "Vodka", 

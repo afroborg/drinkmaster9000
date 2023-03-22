@@ -2,7 +2,7 @@
 import Header from '../components/header.svelte';
 ---
 
-<html lang="en">
+<html lang="en" data-theme="night">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -20,7 +20,7 @@ import Header from '../components/header.svelte';
 
 <style lang="scss">
   body {
-    @apply grid h-screen overflow-hidden gap-8;
+    @apply grid min-h-screen gap-8;
     grid-template-rows: auto minmax(0, 1fr);
   }
 </style>
