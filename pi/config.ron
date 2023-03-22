@@ -1,24 +1,38 @@
 Config(
-    dispensers: [
-        Dispenser (
-            name: "Servo",
-            position: 0,
+    dispenser: [
+        Servo (
+            name: "Höger",
             pin: 23,
+            min_us: 700, 
+            max_us: 2300,
+            neutral_us: 1500,
+            start_angle: 70,
+            end_angle: 140,
+            is_reversed: false,
         ),
-        Dispenser (
-            name: "Vodka",
+        Servo (
+            name: "Vänster",
+            pin: 24,
+            min_us: 700,
+            max_us: 2300,
+            neutral_us: 1500,
+            start_angle: 70,
+            end_angle: 140,
+            is_reversed: true,
+        )
+    ],
+    drinks: [
+        Drink (
+            name: "Vodka", 
             position: 1,
-            pin: 24, 
         ),
-        Dispenser (
-            name: "Rum",
+        Drink (
+            name: "Rom",
             position: 2,
-            pin: 25,
         ),
-        Dispenser (
-            name: "Cola",
+        Drink (
+            name: "Coca Cola",
             position: 3,
-            pin: 26,
         ),
     ]
 )

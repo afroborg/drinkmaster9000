@@ -13,7 +13,7 @@ async fn main() -> std::io::Result<()> {
     println!("Running server on [::]:8080");
     println!("Running on a {}.", DeviceInfo::new().unwrap().model());
 
-    let state = lib::state::AppState::new();
+    let state = lib::config::Config::new();
     let data = web::Data::new(state);
 
     HttpServer::new(move || {
@@ -26,7 +26,7 @@ async fn main() -> std::io::Result<()> {
             .index_file("index.html")
             .prefer_utf8(true);
 
-        let api_scope = web::scope("/api").service(routes::dispensers::dispenser_scope());
+        let api_scope = web::scope("/api").service(routes::dispenser::dispenser_scope());
 
         App::new()
             .wrap(cors)

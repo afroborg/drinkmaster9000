@@ -22,10 +22,10 @@
 
   const debounced = debounce();
 
-  $: debounced(() => sendAngle(value), 100);
+  // $: debounced(() => sendAngle(value), 100);
 </script>
 
-<input type="range" bind:value min="0" max="100" />
+<input type="range" bind:value min="0" max="180" />
 
 <style lang="scss">
 </style>

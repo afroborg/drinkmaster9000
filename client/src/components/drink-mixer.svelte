@@ -22,7 +22,7 @@
     isPouring = !isPouring;
   };
 
-  $: console.log(dispenserAmount);
+
 </script>
 
 <div class="grid md:grid-cols-2 items-center gap-12">
