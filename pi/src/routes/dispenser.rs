@@ -31,23 +31,39 @@ async fn edit_dispenser(data: State, request: web::Json<UpdateDispenser>) -> imp
     HttpResponse::Ok().json(&config.dispenser)
 }
 
+/// Set the angle of the cup holder
+/// POST /api/dispenser/cup/angle/{angle}
+#[post("/cup/angle/{angle}")]
+async fn set_cup_angle(data: State, angle: web::Path<u8>) -> impl Responder {
+    let mut config = data.lock().unwrap();
+
+    config.dispenser.rotate_cup_holder(angle.into_inner());
+
+    HttpResponse::Ok().json(&config.dispenser)
+}
+
 /// Set the angle of all servos
-/// POST /api/dispenser/angle/{angle}
-#[post("/angle/{angle}")]
+/// POST /api/dispenser/pusher/angle/{angle}
+#[post("/pusher/angle/{angle}")]
 async fn set_angle(data: State, angle: web::Path<u8>) -> impl Responder {
     let mut config = data.lock().unwrap();
+
+    // push all servos to the same angle
     config.dispenser.push_all_to_angle(angle.into_inner());
 
     HttpResponse::Ok().json(&config.dispenser)
 }
 
 /// Set the angle of a specific servo
-/// POST /api/dispenser/{index}/angle/{angle}
-#[post("/{index}/angle/{angle}")]
+/// POST /api/dispenser/pusher/{index}/angle/{angle}
+#[post("/pusher/{index}/angle/{angle}")]
 async fn set_angle_index(data: State, params: web::Path<(usize, u8)>) -> impl Responder {
     let mut config = data.lock().unwrap();
+
+    // get the url parameters
     let (index, angle) = params.into_inner();
 
+    // push the servo to the specified angle
     config.dispenser.push_to_angle(index, angle);
 
     HttpResponse::Ok().json(&config.dispenser)
