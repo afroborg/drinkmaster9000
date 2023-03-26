@@ -54,7 +54,13 @@ The backend provides the following API routes:
 - [Pnpm](https://pnpm.io)
 - [Tailscale](https://tailscale.com/)
 
-### Installation
+Mac users can install all of these using [Homebrew](https://brew.sh/).
+
+```sh
+brew install rust node pnpm tailscale
+```
+
+### Setup
 
 > This installation guide requires manuall invitation to the Tailscale network, as well as a custom `hosts` file configuration.
 
@@ -65,11 +71,15 @@ The backend provides the following API routes:
 2. Web interface setup
     
     In the `client` directory:
-    1. Install dependencies
+    1. If you don't already have `pnpm` installed, install it
+        ```sh
+        npm install -g pnpm
+        ```
+    2. Install dependencies
         ```sh
         pnpm install
         ```
-    2. Build the web interface (optional)
+    3. Build the web interface (optional)
         ```sh
         pnpm build
         ```
