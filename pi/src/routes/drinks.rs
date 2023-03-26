@@ -1,9 +1,7 @@
-use std::{thread, time::Duration};
-
+use crate::{lib::config::State, models::drink::Drink};
 use actix_web::{get, post, web, HttpResponse, Responder, Scope};
 use serde::Deserialize;
-
-use crate::{lib::config::State, models::drink::Drink};
+use std::{thread, time::Duration};
 
 pub fn drinks_scope() -> Scope {
     web::scope("/drinks")

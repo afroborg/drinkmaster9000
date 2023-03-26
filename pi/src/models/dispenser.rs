@@ -1,8 +1,6 @@
-use std::time::Duration;
-
-use serde::{Deserialize, Serialize};
-
 use super::servo::{Servo, UpdateServo};
+use serde::{Deserialize, Serialize};
+use std::time::Duration;
 
 #[derive(Serialize, Deserialize)]
 pub struct Dispenser {
