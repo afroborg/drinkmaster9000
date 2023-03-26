@@ -44,3 +44,73 @@ The backend provides the following API routes:
 
 ## 3d models
 > Not finalized
+
+## Getting started
+
+### Prerequisites
+
+- [Rust](https://www.rust-lang.org)
+- [Node.js](https://nodejs.org)
+- [Pnpm](https://pnpm.io)
+- [Tailscale](https://tailscale.com/)
+
+### Installation
+
+> This installation guide requires manuall invitation to the Tailscale network, as well as a custom `hosts` file configuration.
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/afroborg/drinkmixer9000.git
+    ```
+2. Web interface setup
+    
+    In the `client` directory:
+    1. Install dependencies
+        ```sh
+        pnpm install
+        ```
+    2. Build the web interface (optional)
+        ```sh
+        pnpm build
+        ```
+
+3. Backend setup
+    
+    In the `pi` directory:
+    1. Install aarch64-unknown-linux-gnu rust target
+        ```sh
+        rustup target add aarch64-unknown-linux-gnu
+        ```
+    2. Build the backend (optional)
+        ```sh
+        cargo build --release --target aarch64-unknown-linux-gnu
+        ```
+
+4. Set up Tailscale VPN
+    1. Install [Tailscale](https://tailscale.com/)
+    2. Get an invite to the `pi` node
+    3. Activate tailscale on your machine
+
+5. Set up your `hosts` file
+    1. Get the IP address of the `pi` node
+    2. Add the following line to your `/etc/hosts` file:
+        ```
+        <IP address> pi
+        ```
+6. Set up you SSH key on the `pi` node
+    1. Get the IP address of the `pi` node
+    2. Add your SSH key to the `pi` node
+        ```sh
+        ssh-copy-id pi@pi
+        ```
+7. Run the [`deploy`](./deploy.sh) script
+    ```sh
+    ./deploy.sh
+    ```
+    Deployment can be customized by providing arguments to the script.
+    ```sh
+    ./deploy.sh # deploy both frontend and backend
+    ./deploy.sh frontend # only deploy client, leaving the backend untouched
+    ./deploy.sh pi # only deploy backend, leaving the frontend untouched
+    ./deploy.sh pi config # deploy the backend, as well as the current config.ron
+    ```
