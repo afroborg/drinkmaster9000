@@ -31,15 +31,11 @@ impl Dispenser {
         self.pour_speed_ml_ms = update.pour_speed_ml_ms;
 
         // update the cup rotator servo
-        if let Err(err) = self.cup_rotator.update(update.cup_rotator) {
-            return Err(err);
-        };
+        self.cup_rotator.update(update.cup_rotator)?;
 
         // update the pusher servos
         for (servo, update) in self.pusher.iter_mut().zip(update.pusher.into_iter()) {
-            if let Err(err) = servo.update(update) {
-                return Err(err);
-            }
+            servo.update(update)?;
         }
 
         Ok(())
