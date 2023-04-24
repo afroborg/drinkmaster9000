@@ -24,7 +24,15 @@ impl Config {
             fs::read_to_string("/srv/drinkmixer/config.ron").expect("Failed to read config file");
 
         // parse the config file
-        ron::from_str(&file).expect("Failed to parse config file")
+        let mut conf: Self = ron::from_str(&file).expect("Failed to parse config file");
+
+        // initialize at stop state
+        conf.dispenser.set_pushers_to_start();
+
+        // rotate the cup holder to the first index
+        conf.dispenser.rotate_cup_holder_to_index(0);
+
+        conf
     }
 
     /// Create a new config struct from the config file wrapped in a mutex

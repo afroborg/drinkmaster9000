@@ -56,8 +56,8 @@ impl Dispenser {
         Duration::from_millis((amount * self.pour_speed_ml_ms as f32) as u64)
     }
 
-    /// Stop the dispenser, making all the pushers go to the start position
-    pub fn stop(&mut self) {
+    /// Make all the pushers go to the start position
+    pub fn set_pushers_to_start(&mut self) {
         for servo in self.pusher.iter_mut() {
             let _ = servo.goto_start();
         }
@@ -71,8 +71,13 @@ impl Dispenser {
     }
 
     /// Push the a specified pusher at the given index to the given angle
-    pub fn push_to_angle(&mut self, index: usize, angle: u8) {
-        let _ = self.pusher[index].set_angle(angle);
+    pub fn push_to_angle(&mut self, index: usize, angle: u8) -> Result<(), String> {
+        if let Some(servo) = self.pusher.get_mut(index) {
+            let _ = servo.set_angle(angle);
+            Ok(())
+        } else {
+            Err(format!("No pusher at index {}", index))
+        }
     }
 
     /// Rotate the cupholder to the given angle

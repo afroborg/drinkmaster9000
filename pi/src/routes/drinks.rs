@@ -40,6 +40,9 @@ struct Ingredient {
 async fn make_drink(data: State, request: web::Json<Vec<Ingredient>>) -> impl Responder {
     let mut config = data.lock().unwrap();
 
+    // go to start position
+    config.dispenser.set_pushers_to_start();
+
     request.into_inner().iter().for_each(|ingredient| {
         // rotate the cup holder to the correct dispenser, and get the rotation duration
         let rotate_duration = config
@@ -56,7 +59,7 @@ async fn make_drink(data: State, request: web::Json<Vec<Ingredient>>) -> impl Re
         thread::sleep(pour_duration);
 
         // stop the dispenser
-        config.dispenser.stop();
+        config.dispenser.set_pushers_to_start();
 
         // wait 2 seconds for the drink pouring to stop
         thread::sleep(Duration::from_secs(2));

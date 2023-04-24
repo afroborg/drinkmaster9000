@@ -64,7 +64,9 @@ async fn set_angle_index(data: State, params: web::Path<(usize, u8)>) -> impl Re
     let (index, angle) = params.into_inner();
 
     // push the servo to the specified angle
-    config.dispenser.push_to_angle(index, angle);
+    if let Err(e) = config.dispenser.push_to_angle(index, angle) {
+        return HttpResponse::BadRequest().body(e);
+    };
 
     HttpResponse::Ok().json(&config.dispenser)
 }
