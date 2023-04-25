@@ -61,6 +61,7 @@ impl Dispenser {
 
     /// Push all the pushers to the given angle
     pub fn push_all_to_angle(&mut self, angle: u8) {
+        // test hej
         for servo in self.pusher.iter_mut() {
             let _ = servo.set_angle(angle);
         }
