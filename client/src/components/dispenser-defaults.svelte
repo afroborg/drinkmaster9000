@@ -16,9 +16,17 @@
 <Input
   bind:value={dispenser.pour_speed_ml_ms}
   type="number"
-  label="Rinnhastighet"
+  label="Tid för 1ml att rinna igenom"
 >
-  <span slot="suffix">ml/ms</span>
+  <span slot="suffix">ms/ml</span>
+</Input>
+
+<Input
+  bind:value={dispenser.refill_delay_ms}
+  type="number"
+  label="Tid för att fylla på tom minidispenser"
+>
+  <span slot="suffix">ms</span>
 </Input>
 
 <Input

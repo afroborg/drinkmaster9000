@@ -2,8 +2,9 @@ Config(
     dispenser: (
         current_index: 0,
         angle_between: 30,
-        rotation_delay_ms: 1000,
+        rotation_delay_ms: 100,
         pour_speed_ml_ms: 100,
+        refill_delay_ms: 1000,
         cup_rotator: (
             name: "Cup Rotator",
             pin: 22,

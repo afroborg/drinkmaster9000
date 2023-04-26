@@ -1,7 +1,7 @@
 use crate::models::pins::{from_output_pin, from_u8};
 use rppal::gpio::OutputPin;
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 const PERIOD_MS: u64 = 20;
 
@@ -15,6 +15,7 @@ pub struct Servo {
     start_angle: u64,
     end_angle: u64,
     is_reversed: bool, // indicating if the servo should move CW or CCW
+    current_angle: Option<u64>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -51,6 +52,8 @@ impl Servo {
         self.end_angle = update.end_angle;
         self.is_reversed = update.is_reversed;
 
+        self.current_angle = Some(update.start_angle);
+
         Ok(())
     }
 
@@ -61,12 +64,45 @@ impl Servo {
 
     /// Set the servo to the maximum angle
     pub fn goto_end(&mut self) -> Result<u64, String> {
-        self.set_angle(self.end_angle as u8)
+        let res = self.set_angle(self.end_angle as u8);
+        self.current_angle = Some(self.end_angle as u64);
+
+        res
     }
 
     /// Set the servo to the minimum angle
     pub fn goto_start(&mut self) -> Result<u64, String> {
-        self.set_angle(self.start_angle as u8)
+        let res = self.set_angle(self.start_angle as u8);
+        self.current_angle = Some(self.start_angle);
+
+        res
+    }
+
+    pub fn step_to_angle(&mut self, angle: u8) {
+        let Some(current_angle) = self.current_angle else {
+            println!("No current angle set: wanting angle {angle}");
+            return;
+        };
+
+        let angle = angle as u64;
+
+        let range = if current_angle < angle {
+            (current_angle..=angle).collect::<Vec<_>>()
+        } else {
+            (angle..=current_angle).rev().collect::<Vec<_>>()
+        };
+
+        println!("Stepping from {current_angle} to {angle}");
+
+        println!("Range: {range:?}");
+
+        for a in range {
+            println!("Setting angle {a}");
+            let _ = self.set_angle(a as u8);
+            thread::sleep(Duration::from_millis(25));
+        }
+
+        self.current_angle = Some(angle as u64);
     }
 
     /// Set the servo to a specified angle

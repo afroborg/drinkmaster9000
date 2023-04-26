@@ -1,5 +1,7 @@
 #![allow(special_module_name)]
 
+use std::{thread, time::Duration};
+
 use crate::lib::config::State;
 use actix_cors::Cors;
 use actix_files::Files;
@@ -19,6 +21,9 @@ async fn main() -> std::io::Result<()> {
     // set up logging
     std::env::set_var("RUST_LOG", "debug");
     env_logger::init();
+
+    // wait for 1 second after bootup
+    thread::sleep(Duration::from_millis(1000));
 
     // set up the global app config
     let config = lib::config::Config::new_mutex();

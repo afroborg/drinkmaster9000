@@ -31,7 +31,7 @@ async fn edit_drinks(data: State, request: web::Json<Vec<Drink>>) -> impl Respon
 #[derive(Deserialize)]
 struct Ingredient {
     pub index: usize,
-    pub amount: f32,
+    pub amount: f32, // amount of drink to pour in ml
 }
 
 /// Make a drink
@@ -41,7 +41,11 @@ async fn make_drink(data: State, request: web::Json<Vec<Ingredient>>) -> impl Re
     let mut config = data.lock().unwrap();
 
     // go to start position
-    config.dispenser.set_pushers_to_start();
+    config.dispenser.set_start();
+
+    thread::sleep(Duration::from_millis(200));
+
+    println!("--- Creating new drink ---");
 
     request.into_inner().iter().for_each(|ingredient| {
         // rotate the cup holder to the correct dispenser, and get the rotation duration
@@ -53,20 +57,16 @@ async fn make_drink(data: State, request: web::Json<Vec<Ingredient>>) -> impl Re
         thread::sleep(rotate_duration);
 
         // dispense the drink, and get the pour duration
-        let pour_duration = config.dispenser.dispense(ingredient.amount);
+        let _ = config.dispenser.dispense(ingredient.amount);
 
-        // wait for the drink to be poured
-        thread::sleep(pour_duration);
-
-        // stop the dispenser
-        config.dispenser.set_pushers_to_start();
+        println!("Dispensed {} ml, now waiting 2s", ingredient.amount);
 
         // wait 2 seconds for the drink pouring to stop
         thread::sleep(Duration::from_secs(2));
     });
 
     // rotate back to start index
-    config.dispenser.rotate_cup_holder(0);
+    config.dispenser.rotate_cup_holder_to_index(0);
 
     HttpResponse::Ok().finish()
 }

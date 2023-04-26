@@ -27,7 +27,7 @@ impl Config {
         let mut conf: Self = ron::from_str(&file).expect("Failed to parse config file");
 
         // initialize at stop state
-        conf.dispenser.set_pushers_to_start();
+        conf.dispenser.initialize();
 
         // rotate the cup holder to the first index
         conf.dispenser.rotate_cup_holder_to_index(0);

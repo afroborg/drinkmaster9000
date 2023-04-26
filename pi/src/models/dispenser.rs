@@ -1,6 +1,6 @@
 use super::servo::{Servo, UpdateServo};
 use serde::{Deserialize, Serialize};
-use std::time::Duration;
+use std::{thread, time::Duration};
 
 #[derive(Serialize, Deserialize)]
 pub struct Dispenser {
@@ -8,6 +8,7 @@ pub struct Dispenser {
     angle_between: u8,      // angle between each drink dispenser
     rotation_delay_ms: u64, // delay to rotate between each drink dispenser in ms
     pour_speed_ml_ms: u8,   // ml per ms
+    refill_delay_ms: u64,   // delay it takes for the small dispenser to refill in ms
     cup_rotator: Servo,
     pusher: Vec<Servo>,
 }
@@ -19,6 +20,7 @@ pub struct UpdateDispenser {
     pub angle_between: u8,
     pub rotation_delay_ms: u64,
     pub pour_speed_ml_ms: u8,
+    pub refill_delay_ms: u64,
     pub cup_rotator: UpdateServo,
     pub pusher: Vec<UpdateServo>,
 }
@@ -29,6 +31,7 @@ impl Dispenser {
         self.angle_between = update.angle_between;
         self.rotation_delay_ms = update.rotation_delay_ms;
         self.pour_speed_ml_ms = update.pour_speed_ml_ms;
+        self.refill_delay_ms = update.refill_delay_ms;
 
         // update the cup rotator servo
         self.cup_rotator.update(update.cup_rotator)?;
@@ -42,18 +45,54 @@ impl Dispenser {
     }
 
     /// Dispense the given amount of liquid
-    pub fn dispense(&mut self, amount: f32) -> Duration {
-        // set all the pushers to the maximum angle
-        for servo in self.pusher.iter_mut() {
-            let _ = servo.goto_end();
+    pub fn dispense(&mut self, amount: f32) -> Result<(), String> {
+        const MAX_DISPENSES_PER_PUSH: f32 = 35.0;
+
+        let number_of_dispenses = (amount / MAX_DISPENSES_PER_PUSH).ceil() as u8;
+
+        println!("Dispensing {amount}ml, meaning 35x{number_of_dispenses} times");
+
+        for i in 1..=number_of_dispenses {
+            let to_dispense = if i == number_of_dispenses {
+                amount % MAX_DISPENSES_PER_PUSH
+            } else {
+                MAX_DISPENSES_PER_PUSH
+            };
+
+            // set all the pushers to the maximum angle
+            for servo in self.pusher.iter_mut() {
+                let _ = servo.goto_end();
+            }
+
+            let wait_duration = to_dispense * self.pour_speed_ml_ms as f32;
+
+            println!("Waiting for {wait_duration} ms");
+            thread::sleep(Duration::from_millis(wait_duration as u64));
+
+            self.set_start();
+
+            if i != number_of_dispenses {
+                let delay = self.refill_delay_ms;
+
+                println!("Waiting for refill: {delay} ms");
+                thread::sleep(Duration::from_millis(delay));
+            }
         }
 
-        // return the duration of the pour
-        Duration::from_millis((amount * self.pour_speed_ml_ms as f32) as u64)
+        Ok(())
+    }
+
+    pub fn initialize(&mut self) {
+        for servo in self.pusher.iter_mut() {
+            let _ = servo.goto_start();
+            thread::sleep(Duration::from_millis(100));
+        }
+
+        let _ = self.cup_rotator.goto_start();
     }
 
     /// Make all the pushers go to the start position
-    pub fn set_pushers_to_start(&mut self) {
+    pub fn set_start(&mut self) {
         for servo in self.pusher.iter_mut() {
             let _ = servo.goto_start();
         }
@@ -76,9 +115,13 @@ impl Dispenser {
         }
     }
 
-    /// Rotate the cupholder to the given angle
     pub fn rotate_cup_holder(&mut self, angle: u8) {
         let _ = self.cup_rotator.set_angle(angle);
+    }
+
+    // step n times in the direction of the given angle
+    pub fn step_cup_holder_to_angle(&mut self, angle: u8) {
+        let _ = self.cup_rotator.step_to_angle(angle);
     }
 
     /// Rotate to the cupholder to the given index
@@ -87,8 +130,7 @@ impl Dispenser {
         let between = self.angle_between.abs_diff(self.current_index as u8);
         let angle = self.angle_between * index as u8;
 
-        // TODO: rotate with the cupholder servo
-        self.rotate_cup_holder(angle);
+        self.step_cup_holder_to_angle(angle);
 
         Duration::from_millis(self.rotation_delay_ms * between as u64)
     }

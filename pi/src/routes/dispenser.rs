@@ -7,6 +7,7 @@ pub fn dispenser_scope() -> Scope {
         .service(edit_dispenser)
         .service(set_angle)
         .service(set_angle_index)
+        .service(set_cup_angle)
 }
 
 /// Get the current dispenser configuration
@@ -37,7 +38,9 @@ async fn edit_dispenser(data: State, request: web::Json<UpdateDispenser>) -> imp
 async fn set_cup_angle(data: State, angle: web::Path<u8>) -> impl Responder {
     let mut config = data.lock().unwrap();
 
-    config.dispenser.rotate_cup_holder(angle.into_inner());
+    config
+        .dispenser
+        .step_cup_holder_to_angle(angle.into_inner());
 
     HttpResponse::Ok().json(&config.dispenser)
 }
