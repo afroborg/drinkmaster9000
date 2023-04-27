@@ -1,31 +1,38 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import config from '../config';
-  import { getDrinks } from '../lib/api';
+  import { getDispenser, getDrinks } from '../lib/api';
   import type { Drink } from '../models/drink';
   import Button from './button.svelte';
   import Glass from './glass.svelte';
   import Input from './input.svelte';
-
-  let isPouring: boolean = false;
+  import { useDispenser } from '../lib/use-timing';
+  import type { Dispenser } from '../models/dispenser';
 
   let drinks: Drink[] = [];
-  let glassAmount: number = 33;
-  let dispenserAmount: number[] = [];
+  let dispenser: Dispenser = null;
 
   onMount(async () => {
-    const res = await getDrinks();
-    drinks = res;
-    dispenserAmount = res.map(() => 0);
+    const [drinkResponse, dispenserResponse] = await Promise.all([
+      getDrinks(),
+      getDispenser(),
+    ]);
+
+    drinks = drinkResponse;
+    dispenser = dispenserResponse;
   });
 
-  const togglePour = () => {
-    isPouring = !isPouring;
-  };
+  $: ({
+    isPouring,
+    dispenserAmount,
+    createDrink,
+    glassAmount,
+    totalTime,
+    reset,
+  } = useDispenser(drinks, dispenser));
 </script>
 
 <div class="grid md:grid-cols-2 items-center gap-12">
-  <Glass {isPouring} />
+  <Glass isPouring={$isPouring} timeToFillMs={$totalTime} />
 
   <div>
     <div
@@ -33,8 +40,8 @@
     >
       <span> Glasets storlek</span>
 
-      <Input bind:value={glassAmount} max="100" min="0" type="number">
-        <span slot="suffix">cl</span>
+      <Input bind:value={$glassAmount} max="100" min="0" type="number">
+        <span slot="suffix">ml</span>
       </Input>
     </div>
 
@@ -46,7 +53,7 @@
           <span>{drink.name}</span>
 
           <Input
-            bind:value={dispenserAmount[i]}
+            bind:value={$dispenserAmount[i]}
             max="100"
             min="0"
             type="number"
@@ -58,10 +65,10 @@
     </div>
 
     <div class="flex items-center gap-3">
-      <Button on:click={togglePour}>Nollställ</Button>
+      <Button on:click={reset}>Nollställ</Button>
 
-      <Button on:click={togglePour}>
-        {isPouring ? 'Stoppa' : 'Starta'}
+      <Button on:click={$createDrink} isDisabled={$isPouring}>
+        {$isPouring ? 'Stoppa' : 'Starta'}
       </Button>
     </div>
   </div>

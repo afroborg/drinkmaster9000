@@ -2,18 +2,20 @@
   import { onDestroy } from 'svelte';
 
   export let isPouring = false;
+  export let timeToFillMs: number;
 
   let percentageFilled = 0;
   let audio: HTMLAudioElement;
   let timeout: number;
 
-  const mockPour = () => {
+  const pour = () => {
+    const timeToWait = timeToFillMs / 100;
     timeout = setInterval(() => {
       percentageFilled += 1;
       if (percentageFilled > 100) {
         percentageFilled = 0;
       }
-    }, 100);
+    }, timeToWait);
   };
 
   $: startPour(isPouring);
@@ -21,7 +23,7 @@
   const startPour = (doPour: boolean) => {
     if (doPour) {
       audio.play();
-      mockPour();
+      pour();
     } else {
       percentageFilled = 0;
       if (audio) {
