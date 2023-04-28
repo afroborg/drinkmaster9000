@@ -70,14 +70,14 @@ export const useDispenser = (drinks: Drink[], dispenser: Dispenser) => {
         const indexesToMove = Math.abs(currIndex - index);
 
         const tTime =
-          angle_between * indexesToMove * MS_PER_DEGREE + rotation_delay_ms * 2;
+          angle_between * indexesToMove * MS_PER_DEGREE + rotation_delay_ms;
 
         return [time + tTime, index];
       },
       [0, 0]
     );
 
-    const backRotation = lastIndex * MS_PER_DEGREE + rotation_delay_ms * 2;
+    const backRotation = lastIndex * MS_PER_DEGREE + rotation_delay_ms;
 
     return time + backRotation;
   });
@@ -93,7 +93,7 @@ export const useDispenser = (drinks: Drink[], dispenser: Dispenser) => {
       }
 
       return time + WAIT_TIME;
-    });
+    }, 0);
   });
 
   const totalTime = derived(
@@ -146,14 +146,11 @@ export const useDispenser = (drinks: Drink[], dispenser: Dispenser) => {
     }
   );
 
-  const reset = () => {};
-
   return {
     isPouring,
     dispenserAmount,
     glassAmount,
     totalTime,
     createDrink,
-    reset,
   };
 };

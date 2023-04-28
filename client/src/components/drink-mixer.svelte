@@ -21,14 +21,8 @@
     dispenser = dispenserResponse;
   });
 
-  $: ({
-    isPouring,
-    dispenserAmount,
-    createDrink,
-    glassAmount,
-    totalTime,
-    reset,
-  } = useDispenser(drinks, dispenser));
+  $: ({ isPouring, dispenserAmount, createDrink, glassAmount, totalTime } =
+    useDispenser(drinks, dispenser));
 </script>
 
 <div class="grid md:grid-cols-2 items-center gap-12">
@@ -65,8 +59,6 @@
     </div>
 
     <div class="flex items-center gap-3">
-      <Button on:click={reset}>Nollställ</Button>
-
       <Button on:click={$createDrink} isDisabled={$isPouring}>
         {$isPouring ? 'Stoppa' : 'Starta'}
       </Button>

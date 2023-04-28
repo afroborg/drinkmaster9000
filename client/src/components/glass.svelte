@@ -1,5 +1,11 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
+  import 'dayjs/locale/sv';
+  import dayjs from 'dayjs';
+  import relativeTime from 'dayjs/plugin/relativeTime';
+
+  dayjs.extend(relativeTime);
+  dayjs.locale('sv');
 
   export let isPouring = false;
   export let timeToFillMs: number;
@@ -12,13 +18,15 @@
     const timeToWait = timeToFillMs / 100;
     timeout = setInterval(() => {
       percentageFilled += 1;
-      if (percentageFilled > 100) {
-        percentageFilled = 0;
+      if (percentageFilled >= 100) {
+        clearTimeout(timeout);
       }
     }, timeToWait);
   };
 
   $: startPour(isPouring);
+
+  $: timeRemaining = (1 - percentageFilled / 100) * timeToFillMs;
 
   const startPour = (doPour: boolean) => {
     if (doPour) {
@@ -41,14 +49,20 @@
   });
 </script>
 
-<div class="flex gap-4 items-center relative">
-  <div class="glass">
-    <div class="water" style:--scale-y={percentageFilled} />
+<div class="flex items-center justify-center flex-col gap-2">
+  <div class="flex gap-4 items-center justify-center relative">
+    <div class="glass">
+      <div class="water" style:--scale-y={percentageFilled} />
+    </div>
+
+    <div class="absolute">
+      <span class="font-bold">{percentageFilled} / 100%</span>
+    </div>
   </div>
 
-  <div class="absolute left-[118px]">
-    <span class="font-bold">{percentageFilled} / 100%</span>
-  </div>
+  <p>
+    Tid kvar: {dayjs(timeRemaining).format('m[m] s[s]')}
+  </p>
 </div>
 
 <audio bind:this={audio} hidden playsinline loop>
