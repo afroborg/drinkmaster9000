@@ -5,6 +5,7 @@ use std::time::Duration;
 
 #[derive(Serialize, Deserialize)]
 pub struct Dispenser {
+    waiting_angle: u8,
     current_index: usize,
     angle_between: u8,      // angle between each drink dispenser
     rotation_delay_ms: u64, // delay to rotate between each drink dispenser in ms
@@ -18,6 +19,7 @@ pub struct Dispenser {
 /// necessary because the Dispenser struct contains Servo structs, which we want to represeent as u8s
 #[derive(Serialize, Deserialize)]
 pub struct UpdateDispenser {
+    pub waiting_angle: u8,
     pub angle_between: u8,
     pub rotation_delay_ms: u64,
     pub pour_speed_ml_ms: u8,
@@ -33,13 +35,14 @@ impl Dispenser {
         self.rotation_delay_ms = update.rotation_delay_ms;
         self.pour_speed_ml_ms = update.pour_speed_ml_ms;
         self.refill_delay_ms = update.refill_delay_ms;
+        self.waiting_angle = update.waiting_angle;
 
         // update the cup rotator servo
-        self.cup_rotator.update(update.cup_rotator)?;
+        self.cup_rotator.update(&update.cup_rotator)?;
 
         // update the pusher servos
         for (servo, update) in self.pusher.iter_mut().zip(update.pusher.into_iter()) {
-            servo.update(update)?;
+            servo.update(&update)?;
         }
 
         Ok(())
@@ -60,10 +63,7 @@ impl Dispenser {
                 MAX_DISPENSES_PER_PUSH
             };
 
-            // set all the pushers to the maximum angle
-            for servo in self.pusher.iter_mut() {
-                let _ = servo.goto_end();
-            }
+            self.pushers_up();
 
             let wait_duration = to_dispense * self.pour_speed_ml_ms as f32;
 
@@ -71,7 +71,7 @@ impl Dispenser {
 
             time::sleep(Duration::from_millis(wait_duration as u64)).await;
 
-            self.set_start();
+            self.pushers_down();
 
             if i != number_of_dispenses {
                 let delay = self.refill_delay_ms;
@@ -88,25 +88,35 @@ impl Dispenser {
     }
 
     pub async fn initialize(&mut self) {
-        for servo in self.pusher.iter_mut() {
+        for servo in &mut self.pusher {
             let _ = servo.goto_start();
 
             time::sleep(Duration::from_millis(100)).await;
         }
 
-        let _ = self.cup_rotator.step_to_angle(0).await;
+        self.cup_rotator_waiting_position().await;
+    }
+
+    pub async fn cup_rotator_waiting_position(&mut self) {
+        let _ = self.cup_rotator.step_to_angle(self.waiting_angle).await;
     }
 
     /// Make all the pushers go to the start position
-    pub fn set_start(&mut self) {
-        for servo in self.pusher.iter_mut() {
+    pub fn pushers_down(&mut self) {
+        for servo in &mut self.pusher {
             let _ = servo.goto_start();
         }
     }
 
+    pub fn pushers_up(&mut self) {
+        for servo in &mut self.pusher {
+            let _ = servo.goto_end();
+        }
+    }
+
     /// Push all the pushers to the given angle
-    pub fn push_all_to_angle(&mut self, angle: u8) {
-        for servo in self.pusher.iter_mut() {
+    pub fn pushers_to_angle(&mut self, angle: u8) {
+        for servo in &mut self.pusher {
             let _ = servo.set_angle(angle);
         }
     }
@@ -117,7 +127,7 @@ impl Dispenser {
             let _ = servo.set_angle(angle);
             Ok(())
         } else {
-            Err(format!("No pusher at index {}", index))
+            Err(format!("No pusher at index {index}"))
         }
     }
 
@@ -129,7 +139,7 @@ impl Dispenser {
     /// Rotate to the cupholder to the given index
     /// returns the duration of the rotation
     pub async fn rotate_cup_holder_to_index(&mut self, index: usize) {
-        let angle = self.angle_between * index as u8;
+        let angle = self.waiting_angle + self.angle_between * u8::try_from(index + 1).unwrap();
 
         self.step_cup_holder_to_angle(angle).await;
 

@@ -37,5 +37,9 @@
   <span slot="suffix">ms</span>
 </Input>
 
+<Input bind:value={dispenser.waiting_angle} type="number" label="Väntevinkel">
+  <span slot="suffix">deg</span>
+</Input>
+
 <style lang="scss">
 </style>

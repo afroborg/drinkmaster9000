@@ -40,7 +40,7 @@ async fn make_drink(data: State, request: web::Json<Vec<Ingredient>>) -> impl Re
     let mut config = data.lock().await;
 
     // go to start position
-    config.dispenser.set_start();
+    config.dispenser.pushers_down();
 
     println!("--- Creating new drink ---");
 
@@ -54,7 +54,7 @@ async fn make_drink(data: State, request: web::Json<Vec<Ingredient>>) -> impl Re
     }
 
     // rotate back to start index
-    config.dispenser.rotate_cup_holder_to_index(0).await;
+    config.dispenser.cup_rotator_waiting_position().await;
 
     HttpResponse::Ok().finish()
 }

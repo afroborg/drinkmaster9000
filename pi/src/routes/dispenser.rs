@@ -55,7 +55,7 @@ async fn set_angle(data: State, angle: web::Path<u8>) -> impl Responder {
     let mut config = data.lock().await;
 
     // push all servos to the same angle
-    config.dispenser.push_all_to_angle(angle.into_inner());
+    config.dispenser.pushers_to_angle(angle.into_inner());
 
     HttpResponse::Ok().json(&config.dispenser)
 }

@@ -25,7 +25,7 @@
 
 {#if dispenser}
   <form class="space-y-8" on:submit|preventDefault={handleSave}>
-    <div class="grid md:grid-cols-4 gap-4">
+    <div class="grid md:grid-cols-5 gap-2">
       <DispenserDefaults bind:dispenser />
     </div>
 

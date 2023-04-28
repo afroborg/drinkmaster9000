@@ -25,7 +25,7 @@ export const useDispenser = (drinks: Drink[], dispenser: Dispenser) => {
     drinks.map(() => Math.round(100 / drinks.length ?? 1))
   );
 
-  const glassAmount = writable<number>(330);
+  const glassAmount = writable<number>(100);
 
   const fromPercentToMl = derived(glassAmount, ($glassAmount) => {
     return (percent: number) => {
@@ -67,17 +67,19 @@ export const useDispenser = (drinks: Drink[], dispenser: Dispenser) => {
           return [time, currIndex];
         }
 
-        const indexesToMove = Math.abs(currIndex - index);
+        const i = index + 1;
+
+        const indexesToMove = Math.abs(currIndex - i);
 
         const tTime =
           angle_between * indexesToMove * MS_PER_DEGREE + rotation_delay_ms;
 
-        return [time + tTime, index];
+        return [time + tTime, i];
       },
       [0, 0]
     );
 
-    const backRotation = lastIndex * MS_PER_DEGREE + rotation_delay_ms;
+    const backRotation = (lastIndex + 1) * MS_PER_DEGREE + rotation_delay_ms;
 
     return time + backRotation;
   });

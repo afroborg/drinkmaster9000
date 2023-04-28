@@ -19,7 +19,7 @@ pub struct Servo {
     current_angle: Option<u64>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Copy, Clone)]
 pub struct UpdateServo {
     pub pin: u8,
     pub min_us: u64,
@@ -32,7 +32,7 @@ pub struct UpdateServo {
 
 impl Servo {
     /// update the servo with the new values
-    pub fn update(&mut self, update: UpdateServo) -> Result<(), String> {
+    pub fn update(&mut self, update: &UpdateServo) -> Result<(), String> {
         // kill the current pin
         self.die();
 
@@ -65,7 +65,7 @@ impl Servo {
 
     /// Set the servo to the maximum angle
     pub fn goto_end(&mut self) -> Result<u64, String> {
-        let res = self.set_angle(self.end_angle as u8);
+        let res = self.set_angle(u8::try_from(self.end_angle).unwrap());
         self.current_angle = Some(self.end_angle);
 
         res
@@ -73,19 +73,16 @@ impl Servo {
 
     /// Set the servo to the minimum angle
     pub fn goto_start(&mut self) -> Result<u64, String> {
-        let res = self.set_angle(self.start_angle as u8);
+        let res = self.set_angle(u8::try_from(self.start_angle).unwrap());
         self.current_angle = Some(self.start_angle);
 
         res
     }
 
     pub async fn step_to_angle(&mut self, angle: u8) {
-        let Some(current_angle) = self.current_angle else {
-            println!("No current angle set: wanting angle {angle}");
-            return;
-        };
+        let current_angle = self.current_angle.unwrap_or(self.start_angle);
 
-        let angle = angle as u64;
+        let angle = u64::from(angle);
 
         let range = if current_angle < angle {
             (current_angle..=angle).collect::<Vec<_>>()
@@ -98,7 +95,7 @@ impl Servo {
         println!("Range: {range:?}");
 
         for a in range {
-            let _ = self.set_angle(a as u8);
+            let _ = self.set_angle(u8::try_from(a).unwrap());
             time::sleep(Duration::from_millis(25)).await;
         }
 
@@ -112,17 +109,21 @@ impl Servo {
             return Err("Pin not set".to_string());
         };
 
+        let angle = u64::from(angle);
+
         // get the angle based on if the servo is coing CW or CCW
         let angle = if self.is_reversed { 180 - angle } else { angle };
 
         // calculate the pulse width for the specified angle
-        let pulse_width = self.min_us + (u64::from(angle) * (self.max_us - self.min_us) / 180);
+        let pulse_width = self.min_us + (angle * (self.max_us - self.min_us) / 180);
 
         // send the pulse to the servo
         let _ = pin.set_pwm(
             Duration::from_millis(PERIOD_MS),
             Duration::from_micros(pulse_width.min(self.max_us)),
         );
+
+        self.current_angle = Some(angle);
 
         // return the pulse width
         Ok(pulse_width)
