@@ -29,6 +29,8 @@ async fn edit_dispenser(data: State, request: web::Json<UpdateDispenser>) -> imp
         return HttpResponse::BadRequest().body(err);
     }
 
+    config.dispenser.initialize().await;
+
     HttpResponse::Ok().json(&config.dispenser)
 }
 
