@@ -10,7 +10,7 @@ Config(
             name: "Cup Rotator",
             pin: 22,
             min_us: 700,
-            max_us: 2300,
+            max_us: 2100,
             neutral_us: 1500,
             start_angle: 0,
             end_angle: 180,
