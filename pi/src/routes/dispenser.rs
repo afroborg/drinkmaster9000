@@ -1,7 +1,7 @@
 use crate::{lib::config::State, models::dispenser::UpdateDispenser};
 use actix_web::{get, post, web, HttpResponse, Responder, Scope};
 
-pub fn dispenser_scope() -> Scope {
+pub fn scope() -> Scope {
     web::scope("/dispenser")
         .service(get_dispenser)
         .service(edit_dispenser)
@@ -14,7 +14,7 @@ pub fn dispenser_scope() -> Scope {
 /// GET /api/dispenser
 #[get("")]
 async fn get_dispenser(data: State) -> impl Responder {
-    let config = data.lock().unwrap();
+    let config = data.lock().await;
 
     HttpResponse::Ok().json(&config.dispenser)
 }
@@ -23,7 +23,7 @@ async fn get_dispenser(data: State) -> impl Responder {
 /// POST /api/dispenser
 #[post("")]
 async fn edit_dispenser(data: State, request: web::Json<UpdateDispenser>) -> impl Responder {
-    let mut config = data.lock().unwrap();
+    let mut config = data.lock().await;
 
     if let Err(err) = config.update_dispenser(request.into_inner()) {
         return HttpResponse::BadRequest().body(err);
@@ -36,11 +36,12 @@ async fn edit_dispenser(data: State, request: web::Json<UpdateDispenser>) -> imp
 /// POST /api/dispenser/cup/angle/{angle}
 #[post("/cup/angle/{angle}")]
 async fn set_cup_angle(data: State, angle: web::Path<u8>) -> impl Responder {
-    let mut config = data.lock().unwrap();
+    let mut config = data.lock().await;
 
     config
         .dispenser
-        .step_cup_holder_to_angle(angle.into_inner());
+        .step_cup_holder_to_angle(angle.into_inner())
+        .await;
 
     HttpResponse::Ok().json(&config.dispenser)
 }
@@ -49,7 +50,7 @@ async fn set_cup_angle(data: State, angle: web::Path<u8>) -> impl Responder {
 /// POST /api/dispenser/pusher/angle/{angle}
 #[post("/pusher/angle/{angle}")]
 async fn set_angle(data: State, angle: web::Path<u8>) -> impl Responder {
-    let mut config = data.lock().unwrap();
+    let mut config = data.lock().await;
 
     // push all servos to the same angle
     config.dispenser.push_all_to_angle(angle.into_inner());
@@ -61,7 +62,7 @@ async fn set_angle(data: State, angle: web::Path<u8>) -> impl Responder {
 /// POST /api/dispenser/pusher/{index}/angle/{angle}
 #[post("/pusher/{index}/angle/{angle}")]
 async fn set_angle_index(data: State, params: web::Path<(usize, u8)>) -> impl Responder {
-    let mut config = data.lock().unwrap();
+    let mut config = data.lock().await;
 
     // get the url parameters
     let (index, angle) = params.into_inner();

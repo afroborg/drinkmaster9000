@@ -8,16 +8,15 @@ const ML_PER_MSECOND = 100;
 const ROTATION_TIME_PER_MSECOND = 30;
 const WAIT_TIME = 2000;
 const FILL_MINI_DISPENSER_TIME_MSECOND = 3000;
-const DEGREES_BETWEEN_DISPENSERS = 90;
 const MAX_DISPENSES_PER_PUSH = 35;
-const DEAD_TIME = 9000;
+const MS_PER_DEGREE = 50;
 
 export const useDispenser = (drinks: Drink[], dispenser: Dispenser) => {
   const {
     pour_speed_ml_ms = ML_PER_MSECOND,
     refill_delay_ms = FILL_MINI_DISPENSER_TIME_MSECOND,
     rotation_delay_ms = ROTATION_TIME_PER_MSECOND,
-    angle_between = DEGREES_BETWEEN_DISPENSERS,
+    angle_between = 0,
   } = dispenser ?? {};
 
   const isPouring = writable<boolean>(false);
@@ -69,14 +68,16 @@ export const useDispenser = (drinks: Drink[], dispenser: Dispenser) => {
         }
 
         const indexesToMove = Math.abs(currIndex - index);
-        const tTime = indexesToMove * angle_between * rotation_delay_ms;
+
+        const tTime =
+          angle_between * indexesToMove * MS_PER_DEGREE + rotation_delay_ms * 2;
 
         return [time + tTime, index];
       },
       [0, 0]
     );
 
-    const backRotation = lastIndex * angle_between * rotation_delay_ms;
+    const backRotation = lastIndex * MS_PER_DEGREE + rotation_delay_ms * 2;
 
     return time + backRotation;
   });
@@ -98,7 +99,7 @@ export const useDispenser = (drinks: Drink[], dispenser: Dispenser) => {
   const totalTime = derived(
     [timeForFills, timeForRotations, timeForWaiting],
     ([$timeForFills, $timeForRotations, $timeForWaiting]) => {
-      return DEAD_TIME + $timeForFills + $timeForRotations + $timeForWaiting;
+      return $timeForFills + $timeForRotations + $timeForWaiting;
     }
   );
 

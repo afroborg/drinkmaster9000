@@ -34,7 +34,7 @@
   type="number"
   label="Tid för rotation mellan 2 dispensrar"
 >
-  <span slot="suffix">deg/ms</span>
+  <span slot="suffix">ms</span>
 </Input>
 
 <style lang="scss">

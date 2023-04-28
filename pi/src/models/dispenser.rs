@@ -1,6 +1,7 @@
 use super::servo::{Servo, UpdateServo};
+use actix_web::rt::time;
 use serde::{Deserialize, Serialize};
-use std::{thread, time::Duration};
+use std::time::Duration;
 
 #[derive(Serialize, Deserialize)]
 pub struct Dispenser {
@@ -45,7 +46,7 @@ impl Dispenser {
     }
 
     /// Dispense the given amount of liquid
-    pub fn dispense(&mut self, amount: f32) -> Result<(), String> {
+    pub async fn dispense(&mut self, amount: f32) -> Result<(), String> {
         const MAX_DISPENSES_PER_PUSH: f32 = 35.0;
 
         let number_of_dispenses = (amount / MAX_DISPENSES_PER_PUSH).ceil() as u8;
@@ -67,7 +68,8 @@ impl Dispenser {
             let wait_duration = to_dispense * self.pour_speed_ml_ms as f32;
 
             println!("Waiting for {wait_duration} ms");
-            thread::sleep(Duration::from_millis(wait_duration as u64));
+
+            time::sleep(Duration::from_millis(wait_duration as u64)).await;
 
             self.set_start();
 
@@ -75,20 +77,24 @@ impl Dispenser {
                 let delay = self.refill_delay_ms;
 
                 println!("Waiting for refill: {delay} ms");
-                thread::sleep(Duration::from_millis(delay));
+
+                time::sleep(Duration::from_millis(delay)).await;
             }
         }
+
+        time::sleep(Duration::from_secs(2)).await;
 
         Ok(())
     }
 
-    pub fn initialize(&mut self) {
+    pub async fn initialize(&mut self) {
         for servo in self.pusher.iter_mut() {
             let _ = servo.goto_start();
-            thread::sleep(Duration::from_millis(100));
+
+            time::sleep(Duration::from_millis(100)).await;
         }
 
-        let _ = self.cup_rotator.goto_start();
+        let _ = self.cup_rotator.step_to_angle(0).await;
     }
 
     /// Make all the pushers go to the start position
@@ -115,23 +121,18 @@ impl Dispenser {
         }
     }
 
-    pub fn rotate_cup_holder(&mut self, angle: u8) {
-        let _ = self.cup_rotator.set_angle(angle);
-    }
-
     // step n times in the direction of the given angle
-    pub fn step_cup_holder_to_angle(&mut self, angle: u8) {
-        let _ = self.cup_rotator.step_to_angle(angle);
+    pub async fn step_cup_holder_to_angle(&mut self, angle: u8) {
+        let _ = self.cup_rotator.step_to_angle(angle).await;
     }
 
     /// Rotate to the cupholder to the given index
     /// returns the duration of the rotation
-    pub fn rotate_cup_holder_to_index(&mut self, index: usize) -> Duration {
-        let between = self.angle_between.abs_diff(self.current_index as u8);
+    pub async fn rotate_cup_holder_to_index(&mut self, index: usize) {
         let angle = self.angle_between * index as u8;
 
-        self.step_cup_holder_to_angle(angle);
+        self.step_cup_holder_to_angle(angle).await;
 
-        Duration::from_millis(self.rotation_delay_ms * between as u64)
+        time::sleep(Duration::from_millis(self.rotation_delay_ms)).await;
     }
 }

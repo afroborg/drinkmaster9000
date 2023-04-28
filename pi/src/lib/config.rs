@@ -3,7 +3,7 @@ use crate::models::drink::Drink;
 use actix_web::web;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::sync::Mutex;
+use tokio::sync::Mutex;
 
 pub type State = web::Data<Mutex<Config>>;
 
@@ -24,20 +24,13 @@ impl Config {
             fs::read_to_string("/srv/drinkmixer/config.ron").expect("Failed to read config file");
 
         // parse the config file
-        let mut conf: Self = ron::from_str(&file).expect("Failed to parse config file");
-
-        // initialize at stop state
-        conf.dispenser.initialize();
-
-        // rotate the cup holder to the first index
-        conf.dispenser.rotate_cup_holder_to_index(0);
+        let conf: Self = ron::from_str(&file).expect("Failed to parse config file");
 
         conf
     }
 
-    /// Create a new config struct from the config file wrapped in a mutex
-    pub fn new_mutex() -> Mutex<Self> {
-        Mutex::new(Self::new())
+    pub async fn initialize(&mut self) {
+        self.dispenser.initialize().await;
     }
 
     /// Update the dispenser config

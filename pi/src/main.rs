@@ -1,11 +1,12 @@
 #![allow(special_module_name)]
 
-use std::{thread, time::Duration};
+use std::time::Duration;
+use tokio::sync::Mutex;
 
 use crate::lib::config::State;
 use actix_cors::Cors;
 use actix_files::Files;
-use actix_web::{web, App, HttpServer};
+use actix_web::{rt::time, web, App, HttpServer};
 use rppal::system::DeviceInfo;
 
 mod lib;
@@ -23,11 +24,13 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     // wait for 1 second after bootup
-    thread::sleep(Duration::from_millis(1000));
+    time::sleep(Duration::from_millis(1000)).await;
 
     // set up the global app config
-    let config = lib::config::Config::new_mutex();
-    let state: State = web::Data::new(config);
+    let mut config = lib::config::Config::new();
+    config.initialize().await;
+
+    let state: State = web::Data::new(Mutex::new(config));
 
     HttpServer::new(move || {
         // setup cors
@@ -43,17 +46,13 @@ async fn main() -> std::io::Result<()> {
 
         // set up the api routes so that they are all under /api
         let api_scope = web::scope("/api")
-            .service(routes::drinks::drinks_scope())
-            .service(routes::dispenser::dispenser_scope());
-
-        // set up the websocket routes so that they are all under /ws
-        let ws_scope = routes::ws::ws_scope();
+            .service(routes::drinks::scope())
+            .service(routes::dispenser::scope());
 
         App::new()
             .wrap(cors)
             .app_data(web::Data::clone(&state))
             .service(api_scope)
-            .service(ws_scope)
             // add the static files handler
             // this should always be last so that it doesn't interfere with any api routes
             .service(files_handler)

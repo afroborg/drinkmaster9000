@@ -1,7 +1,8 @@
 use crate::models::pins::{from_output_pin, from_u8};
+use actix_web::rt::time;
 use rppal::gpio::OutputPin;
 use serde::{Deserialize, Serialize};
-use std::{thread, time::Duration};
+use std::time::Duration;
 
 const PERIOD_MS: u64 = 20;
 
@@ -65,7 +66,7 @@ impl Servo {
     /// Set the servo to the maximum angle
     pub fn goto_end(&mut self) -> Result<u64, String> {
         let res = self.set_angle(self.end_angle as u8);
-        self.current_angle = Some(self.end_angle as u64);
+        self.current_angle = Some(self.end_angle);
 
         res
     }
@@ -78,7 +79,7 @@ impl Servo {
         res
     }
 
-    pub fn step_to_angle(&mut self, angle: u8) {
+    pub async fn step_to_angle(&mut self, angle: u8) {
         let Some(current_angle) = self.current_angle else {
             println!("No current angle set: wanting angle {angle}");
             return;
@@ -97,12 +98,11 @@ impl Servo {
         println!("Range: {range:?}");
 
         for a in range {
-            println!("Setting angle {a}");
             let _ = self.set_angle(a as u8);
-            thread::sleep(Duration::from_millis(25));
+            time::sleep(Duration::from_millis(25)).await;
         }
 
-        self.current_angle = Some(angle as u64);
+        self.current_angle = Some(angle);
     }
 
     /// Set the servo to a specified angle
@@ -113,13 +113,10 @@ impl Servo {
         };
 
         // get the angle based on if the servo is coing CW or CCW
-        let angle = match self.is_reversed {
-            true => 180 - angle,
-            false => angle,
-        };
+        let angle = if self.is_reversed { 180 - angle } else { angle };
 
         // calculate the pulse width for the specified angle
-        let pulse_width = self.min_us + (angle as u64 * (self.max_us - self.min_us) / 180);
+        let pulse_width = self.min_us + (u64::from(angle) * (self.max_us - self.min_us) / 180);
 
         // send the pulse to the servo
         let _ = pin.set_pwm(
