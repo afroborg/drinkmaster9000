@@ -67,7 +67,7 @@ export const useDispenser = (drinks: Drink[], dispenser: Dispenser) => {
           return [time, currIndex];
         }
 
-        const i = index + 1;
+        const i = index;
 
         const indexesToMove = Math.abs(currIndex - i);
 
@@ -79,7 +79,7 @@ export const useDispenser = (drinks: Drink[], dispenser: Dispenser) => {
       [0, 0]
     );
 
-    const backRotation = (lastIndex + 1) * MS_PER_DEGREE + rotation_delay_ms;
+    const backRotation = lastIndex * MS_PER_DEGREE + rotation_delay_ms;
 
     return time + backRotation;
   });
