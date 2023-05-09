@@ -56,9 +56,11 @@ impl Dispenser {
 
         println!("Dispensing {amount}ml, meaning 35x{number_of_dispenses} times");
 
+        let max_dispense = amount % MAX_DISPENSES_PER_PUSH;
+
         for i in 1..=number_of_dispenses {
-            let to_dispense = if i == number_of_dispenses {
-                amount % MAX_DISPENSES_PER_PUSH
+            let to_dispense = if i == number_of_dispenses && max_dispense != 0.0 && amount != 0.0 {
+                max_dispense
             } else {
                 MAX_DISPENSES_PER_PUSH
             };
