@@ -1,16 +1,16 @@
 Config(
     dispenser: (
         current_index: 0,
-        angle_between: 60,
+        angle_between: 65,
         rotation_delay_ms: 100,
         pour_speed_ml_ms: 100,
-        refill_delay_ms: 1000,
+        refill_delay_ms: 3000,
         waiting_angle: 0,
         cup_rotator: (
             name: "Cup Rotator",
             pin: 22,
             min_us: 700,
-            max_us: 2100,
+            max_us: 2150,
             neutral_us: 1500,
             start_angle: 0,
             end_angle: 180,
@@ -45,11 +45,11 @@ Config(
             position: 1,
         ),
         Drink (
-            name: "Rom",
+            name: "Kiss",
             position: 2,
         ),
         Drink (
-            name: "Coca Cola",
+            name: "Hallon",
             position: 3,
         ),
     ]
