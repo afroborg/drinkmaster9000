@@ -139,7 +139,10 @@ impl Dispenser {
     /// Rotate to the cupholder to the given index
     /// returns the duration of the rotation
     pub async fn rotate_cup_holder_to_index(&mut self, index: usize) {
-        let angle = self.waiting_angle + self.angle_between * u8::try_from(index).unwrap();
+        let offset_angle = 5;
+
+        let angle =
+            self.waiting_angle + self.angle_between * u8::try_from(index).unwrap() + offset_angle;
 
         self.step_cup_holder_to_angle(angle).await;
 

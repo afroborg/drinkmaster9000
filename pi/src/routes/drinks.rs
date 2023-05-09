@@ -50,7 +50,9 @@ async fn make_drink(data: State, request: web::Json<Vec<Ingredient>>) -> impl Re
             .rotate_cup_holder_to_index(ingredient.index)
             .await;
 
-        let _ = config.dispenser.dispense(ingredient.amount).await;
+        if let Err(err) = config.dispenser.dispense(ingredient.amount).await {
+            return HttpResponse::InternalServerError().body(err);
+        };
     }
 
     // rotate back to start index
